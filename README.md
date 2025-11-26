@@ -4,9 +4,17 @@ AI-powered credential tamper detection and verification system
 
 ## Team Contacts
 
-| Name           | Email                                                   |
+| Name           | Contact                                                   |
 | -------------- | ------------------------------------------------------- |
-| Your Name Here | [your.email@example.com](mailto:your.email@example.com) |
+| Tejanvesh Gangavarapu |  |
+| -------------- | ------------------------------------------------------- |
+| Your Name Here |  |
+| -------------- | ------------------------------------------------------- |
+| Your Name Here |  |
+| -------------- | ------------------------------------------------------- |
+| Your Name Here |  |
+| -------------- | ------------------------------------------------------- |
+| Your Name Here |  |
 
 
 
