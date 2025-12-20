@@ -6,9 +6,9 @@ AI-powered credential tamper detection and verification system
 
 | Name           | Contact                                                   |
 | -------------- | ------------------------------------------------------- |
-| Tejanvesh Gangavarapu |  |
-| Kwaku Asare |  | kasare2@uwo.ca
-| Your Name Here |  |
+| Tejanvesh Gangavarapu | tgangava@uwo.ca |
+| Kwaku Asare |  kasare2@uwo.ca |
+| Jonas Neumann | jneuman3@uwo.ca |
 | Your Name Here |  |
 | Your Name Here |  |
 
