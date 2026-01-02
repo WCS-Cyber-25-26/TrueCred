@@ -1,17 +1,36 @@
 const express = require('express');
-const helmet = require('helmet');
-// CORS is removed
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
 require('dotenv').config();
 
 const app = express();
 
-// Security & Middleware
-app.use(helmet()); 
 app.use(express.json());
 
-// Placeholder Route
-// We prefix with /api so the proxy knows what to forward
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
+/**
+ * @swagger
+ * /api/helloworld:
+ *   get:
+ *     summary: Returns a hello world message
+ *     tags:
+ *       - Test
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hello World!
+ */
+
 app.get('/api/helloworld', (req, res) => res.send('Hello World!'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
