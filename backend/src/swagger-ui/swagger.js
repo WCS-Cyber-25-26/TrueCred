@@ -1,4 +1,5 @@
 const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerDefinitions = require("./swaggerDefinition");
 
 const options = {
   definition: {
@@ -13,8 +14,9 @@ const options = {
         url: "http://localhost:8080",
       },
     ],
+    paths: swaggerDefinitions.paths,
   },
-  apis: ["./src/app.js"],
+  apis: [],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

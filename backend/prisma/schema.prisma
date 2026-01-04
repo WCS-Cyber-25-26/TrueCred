@@ -1,15 +1,85 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+  transpile = true
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  role       UserRole
+  createdAt  DateTime    @default(now())
+  university University?
+}
+
+model University {
+  id               String            @id @default(uuid())
+  name             String
+  domain           String            @unique
+  domainVerified   Boolean           @default(false)
+  chainEnabled     Boolean           @default(false)
+  blockchainId     String?
+  createdAt        DateTime          @default(now())
+  userId           String            @unique
+  credentials      Credential[]
+  user             User              @relation(fields: [userId], references: [id])
+  verificationJobs VerificationJob[]
+}
+
+model Credential {
+  id            String     @id @default(uuid())
+  canonicalHash String     @unique
+  createdAt     DateTime   @default(now())
+  universityId  String
+  university    University @relation(fields: [universityId], references: [id])
+}
+
+model VerificationJob {
+  id           String              @id @default(uuid())
+  status       VerificationStatus  @default(PENDING)
+  createdAt    DateTime            @default(now())
+  completedAt  DateTime?
+  ipAddress    String?
+  geoLocation  String?
+  userAgent    String?
+  universityId String?
+  university   University?         @relation(fields: [universityId], references: [id])
+  result       VerificationResult?
+}
+
+model VerificationResult {
+  id              String          @id @default(uuid())
+  ocrStatus       String
+  aiScore         Float?
+  blockchainMatch Boolean?
+  verdict         String
+  heatmapUrl      String?
+  jobId           String          @unique
+  job             VerificationJob @relation(fields: [jobId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  UNIVERSITY
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
