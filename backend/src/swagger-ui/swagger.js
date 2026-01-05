@@ -14,6 +14,16 @@ const options = {
         url: "http://localhost:8080",
       },
     ],
+    components: {
+      securitySchemes: {
+        SessionAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "X-Session-Token",
+          description: "Session token returned after login",
+        },
+      },
+    },
     paths: swaggerDefinitions.paths,
   },
   apis: [],

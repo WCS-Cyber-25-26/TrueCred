@@ -23,82 +23,81 @@ const swaggerDefinitions = {
     },
 
     "/auth/register": {
-      post: {
-        summary: "Register a university",
-        tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
+      "post": {
+        "summary": "Register a university",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
             "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  name: { type: "string", example: "Western University" },
-                  email: { type: "string", example: "test@western.ca" },
-                  password: { type: "string", example: "StrongPassword123" },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "test3@western.ca" },
+                  "password": { "type": "string", "example": "TestPassword123" }
                 },
-                required: ["name", "email", "password"],
-              },
-            },
-          },
+                "required": ["email", "password"],
+                "description": "The university will be registered. The role is automatically set to 'UNIVERSITY'."
+              }
+            }
+          }
         },
-        responses: {
-          201: {
-            description: "University registered successfully",
-            content: {
+        "responses": {
+          "201": {
+            "description": "University registered successfully",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "University registered" },
-                    userId: { type: "integer", example: 1 },
-                  },
-                },
-              },
-            },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "University registered successfully" },
+                    "userId": { "type": "string", "example": "uuid-of-user" }
+                  }
+                }
+              }
+            }
           },
-          400: { description: "Bad request / validation error" },
-        },
-      },
+          "400": { "description": "Bad request / validation error" }
+        }
+      }
     },
-
     "/auth/login": {
-      post: {
-        summary: "Login a university",
-        tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
+      "post": {
+        "summary": "Login a university",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
             "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  email: { type: "string", example: "test@western.ca" },
-                  password: { type: "string", example: "StrongPassword123" },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "test@western.ca" },
+                  "password": { "type": "string", "example": "StrongPassword123" }
                 },
-                required: ["email", "password"],
-              },
-            },
-          },
+                "required": ["email", "password"]
+              }
+            }
+          }
         },
-        responses: {
-          200: {
-            description: "Login successful",
-            content: {
+        "responses": {
+          "200": {
+            "description": "Login successful and session token created",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Login successful" },
-                    token: { type: "string", example: "jwt.token.here" },
-                  },
-                },
-              },
-            },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Login successful" },
+                    "sessionToken": { "type": "string", "example": "a1b2c3d4e5f6g7h8i9j0" }
+                  }
+                }
+              }
+            }
           },
-          400: { description: "Invalid credentials" },
-        },
-      },
+          "400": { "description": "Invalid credentials or login failed" }
+        }
+      }
     },
 
     "/students": {
@@ -129,7 +128,7 @@ const swaggerDefinitions = {
                   type: "object",
                   properties: {
                     message: { type: "string", example: "Student added" },
-                    student: { type: "object" }, // You can expand this later
+                    student: { type: "object" },
                   },
                 },
               },
