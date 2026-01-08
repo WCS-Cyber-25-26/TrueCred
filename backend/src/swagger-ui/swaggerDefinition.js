@@ -173,4 +173,4 @@ const swaggerDefinitions = {
   },
 };
 
-module.exports = swaggerDefinitions;
+export default swaggerDefinitions;

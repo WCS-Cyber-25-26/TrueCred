@@ -1,5 +1,5 @@
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerDefinitions = require("./swaggerDefinition");
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerDefinitions from "./swaggerDefinition.js";
 
 const options = {
   definition: {
@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8080",
+        url: "http://localhost:8080/api",
       },
     ],
     components: {
@@ -31,4 +31,4 @@ const options = {
 
 const swaggerSpec = swaggerJsdoc(options);
 
-module.exports = swaggerSpec;
+export default swaggerSpec;

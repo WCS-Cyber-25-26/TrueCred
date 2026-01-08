@@ -1,5 +1,5 @@
 // src/test.js
-const prisma = require('../prisma/client');
+import prisma from '../prisma/client.js';
 
 async function test() {
   try {

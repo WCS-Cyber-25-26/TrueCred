@@ -1,1 +1,6 @@
-const prisma = require('../../prisma/client');
+import prisma from '../../prisma/client.js';
+
+const studentService = {
+}
+
+export default studentService;

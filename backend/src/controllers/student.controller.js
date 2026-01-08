@@ -1,6 +1,7 @@
-const studentService = require('../services/student.service');
+import studentService from '../services/student.service.js';
 
-exports.addStudent = async (req, res) => {
+
+export const addStudent = async (req, res) => {
   try {
     res.status(200).send("Student added successfully");
   } catch (err) {
@@ -8,7 +9,7 @@ exports.addStudent = async (req, res) => {
   }
 };
 
-exports.getStudent = async (req, res) => {
+export const getStudent = async (req, res) => {
   try {
     res.status(200).send("Student retrieval successful");
   } catch (err) {

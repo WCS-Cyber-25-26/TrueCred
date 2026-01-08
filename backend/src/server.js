@@ -1,10 +1,10 @@
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./swagger-ui/swagger");
-const authRoutes = require('./routes/auth.route');
-const studentRoutes = require('./routes/student.route');
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./swagger-ui/swagger.js";
+import authRoutes from './routes/auth.route.js';
+import studentRoutes from './routes/student.route.js';
 
-const express = require('express');
-require('dotenv').config();
+import express from 'express';
+import 'dotenv/config';
 
 const app = express();
 app.use(express.json());

@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { addStudent, getStudent } from '../controllers/student.controller.js';
+
 const router = express.Router();
-const studentController = require('../controllers/student.controller');
-const authMiddleware = require('../middleware/auth.middleware');
 
-router.post('/', studentController.addStudent);
-router.get('/:id', studentController.getStudent);
+//add authMiddleware later
+router.post('/', addStudent);
+router.get('/:id', getStudent);
 
-module.exports = router;
+export default router;
