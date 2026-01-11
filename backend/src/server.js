@@ -1,10 +1,11 @@
+import 'dotenv/config';
+
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger-ui/swagger.js";
 import authRoutes from './routes/auth.route.js';
 import studentRoutes from './routes/student.route.js';
 
 import express from 'express';
-import 'dotenv/config';
 
 const app = express();
 app.use(express.json());

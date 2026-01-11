@@ -17,13 +17,18 @@ const options = {
     components: {
       securitySchemes: {
         SessionAuth: {
-          type: "apiKey",
-          in: "header",
-          name: "X-Session-Token",
-          description: "Session token returned after login",
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "SessionToken",
+          description: "Paste the session token only (no 'Bearer ' needed)",
         },
       },
     },
+    security: [
+      {
+        SessionAuth: [],
+      },
+    ],
     paths: swaggerDefinitions.paths,
   },
   apis: [],
