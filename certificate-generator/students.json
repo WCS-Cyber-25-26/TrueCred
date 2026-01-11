@@ -1,0 +1,74 @@
+[
+  {
+    "university": "Northbridge Institute of Technology",
+    "student_name": "Ethan Michael Carter",
+    "degree": "Bachelor of Science",
+    "major": "Computer Engineering",
+    "date": "May 20, 2024",
+    "certificate_id": "NIT-2024-0001",
+    "signatory": "Office of Academic Records"
+  },
+  {
+    "university": "Silvercrest University",
+    "student_name": "Ava Lynn Richardson",
+    "degree": "Bachelor of Arts",
+    "major": "International Relations",
+    "date": "June 12, 2024",
+    "certificate_id": "SCU-2024-0147",
+    "signatory": "Registrar"
+  },
+  {
+    "university": "Redwood Valley University",
+    "student_name": "Noah Daniel Kim",
+    "degree": "Master of Science",
+    "major": "Data Science",
+    "date": "August 30, 2024",
+    "certificate_id": "RVU-2024-0821",
+    "signatory": "Graduate Studies Office"
+  },
+  {
+    "university": "Aurora Heights College",
+    "student_name": "Sophia Elena Martinez",
+    "degree": "Bachelor of Engineering",
+    "major": "Electrical Engineering",
+    "date": "April 25, 2025",
+    "certificate_id": "AHC-2025-0033",
+    "signatory": "Dean of Engineering"
+  },
+  {
+    "university": "Lakeshore Polytechnic",
+    "student_name": "Daniel Robert Thompson",
+    "degree": "Diploma",
+    "major": "Cybersecurity",
+    "date": "November 18, 2024",
+    "certificate_id": "LP-2024-1198",
+    "signatory": "Academic Affairs"
+  },
+  {
+    "university": "Summit Ridge University",
+    "student_name": "Olivia Grace Nguyen",
+    "degree": "Bachelor of Science",
+    "major": "Biotechnology",
+    "date": "June 10, 2025",
+    "certificate_id": "SRU-2025-0402",
+    "signatory": "Registrar of the University"
+  },
+  {
+    "university": "Ironwood Institute",
+    "student_name": "Lucas Benjamin Foster",
+    "degree": "Master of Engineering",
+    "major": "Software Systems",
+    "date": "September 5, 2024",
+    "certificate_id": "II-2024-0674",
+    "signatory": "Office of the Chancellor"
+  },
+  {
+    "university": "Bluehaven University",
+    "student_name": "Maya Priya Desai",
+    "degree": "Bachelor of Commerce",
+    "major": "Information Systems",
+    "date": "May 28, 2025",
+    "certificate_id": "BHU-2025-0219",
+    "signatory": "Faculty of Business"
+  }
+]
