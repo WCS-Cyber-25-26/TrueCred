@@ -99,11 +99,45 @@ const swaggerDefinitions = {
         }
       }
     },
-
+    "/auth/logout": {
+      post: {
+        summary: "Logout the currently logged-in university",
+        tags: ["Auth"],
+        security: [
+          { SessionAuth: [] }
+        ],
+        requestBody: {
+          required: false,
+          description: "No body required. Authorization header with session token is used."
+        },
+        responses: {
+          200: {
+            description: "Logout successful and session revoked",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Logged out successfully" },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized – session token missing, invalid, or already revoked"
+          },
+          500: { description: "Server error" }
+        },
+      },
+    },
     "/students": {
       post: {
         summary: "Add a new student",
         tags: ["Student"],
+        security: [
+          { SessionAuth: [] }
+        ],
         requestBody: {
           required: true,
           content: {
@@ -135,6 +169,7 @@ const swaggerDefinitions = {
             },
           },
           400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
         },
       },
     },
@@ -143,6 +178,9 @@ const swaggerDefinitions = {
       get: {
         summary: "Get student by ID",
         tags: ["Student"],
+        security: [
+          { SessionAuth: [] }
+        ],
         parameters: [
           {
             name: "id",
@@ -166,6 +204,7 @@ const swaggerDefinitions = {
               },
             },
           },
+          401: { description: "Unauthorized" },
           404: { description: "Student not found" },
         },
       },

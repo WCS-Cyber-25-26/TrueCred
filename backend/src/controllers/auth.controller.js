@@ -25,7 +25,20 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    res.status(200).send("Login successful");
+    const { email, password } = req.body;
+
+    const result = await authService.login({ email, password });
+    res.status(200).json(result);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const result = await authService.logout(req.token);
+    res.status(200).json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
