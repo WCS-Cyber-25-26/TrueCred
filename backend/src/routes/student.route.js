@@ -1,11 +1,11 @@
 import express from 'express';
-import { addStudent, getStudent } from '../controllers/student.controller.js';
+import { addStudent, getStudent, revokeStudent } from '../controllers/student.controller.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-//add authMiddleware later
 router.post('/', authMiddleware, addStudent);
 router.get('/:id', authMiddleware, getStudent);
+router.put('/:id', authMiddleware, revokeStudent);
 
 export default router;

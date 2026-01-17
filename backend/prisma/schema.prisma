@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider  = "prisma-client-js"
+  output    = "../src/generated/prisma"
   transpile = true
 }
 
@@ -17,42 +17,88 @@ model User {
   createdAt  DateTime    @default(now())
   university University?
 
-  sessions   Session[]
+  sessions Session[]
 }
 
 model Session {
-  id         String   @id @default(uuid())
-  token      String   @unique
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt  DateTime
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
   revoked   Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([token])
   @@index([userId])
 }
 
 model University {
-  id               String            @id @default(uuid())
+  id               String                @id @default(uuid())
   name             String
-  domain           String            @unique
-  domainVerified   Boolean           @default(false)
-  chainEnabled     Boolean           @default(false)
+  domain           String                @unique
+  domainVerified   Boolean               @default(false)
+  chainEnabled     Boolean               @default(false)
   blockchainId     String?
-  createdAt        DateTime          @default(now())
-  userId           String            @unique
+  createdAt        DateTime              @default(now())
+  userId           String                @unique
   credentials      Credential[]
-  user             User              @relation(fields: [userId], references: [id])
+  students         Student[]
+  user             User                  @relation(fields: [userId], references: [id])
   verificationJobs VerificationJob[]
+  revocation       UniversityRevocation?
+}
+
+model UniversityRevocation {
+  id           String     @id @default(uuid())
+  universityId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  university   University @relation(fields: [universityId], references: [id])
+}
+
+model Student {
+  id             String   @id @default(uuid())
+  pseudonymousId String   @unique
+  createdAt      DateTime @default(now())
+
+  firstName String
+  lastName  String
+  metadata  Json?
+
+  universityId String
+  university   University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  credentials  Credential[]
+
+  @@unique([pseudonymousId, universityId])
+  @@index([universityId])
 }
 
 model Credential {
-  id            String     @id @default(uuid())
-  canonicalHash String     @unique
-  createdAt     DateTime   @default(now())
-  universityId  String
-  university    University @relation(fields: [universityId], references: [id])
+  id            String   @id @default(uuid())
+  canonicalHash String   @unique
+  createdAt     DateTime @default(now())
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  universityId String
+  university   University @relation(fields: [universityId], references: [id])
+
+  revocation CredentialRevocation?
+
+  @@index([studentId])
+  @@index([universityId])
+}
+
+model CredentialRevocation {
+  id           String     @id @default(uuid())
+  credentialId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  credential   Credential @relation(fields: [credentialId], references: [id])
 }
 
 model VerificationJob {
@@ -66,6 +112,9 @@ model VerificationJob {
   universityId String?
   university   University?         @relation(fields: [universityId], references: [id])
   result       VerificationResult?
+
+  @@index([universityId])
+  @@index([status])
 }
 
 model VerificationResult {
@@ -74,7 +123,6 @@ model VerificationResult {
   aiScore         Float?
   blockchainMatch Boolean?
   verdict         String
-  heatmapUrl      String?
   jobId           String          @unique
   job             VerificationJob @relation(fields: [jobId], references: [id])
 }

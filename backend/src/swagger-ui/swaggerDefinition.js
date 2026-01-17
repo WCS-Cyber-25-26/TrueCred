@@ -61,6 +61,7 @@ const swaggerDefinitions = {
         }
       }
     },
+
     "/auth/login": {
       "post": {
         "summary": "Login a university",
@@ -99,6 +100,7 @@ const swaggerDefinitions = {
         }
       }
     },
+
     "/auth/logout": {
       post: {
         summary: "Logout the currently logged-in university",
@@ -209,7 +211,106 @@ const swaggerDefinitions = {
         },
       },
     },
-  },
+
+    "/admin/universities": {
+      get: {
+        summary: "Get all universities",
+        tags: ["Admin"],
+        security: [{ SessionAuth: [] }],
+        responses: {
+          200: {
+            description: "List of universities",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string", example: "uuid-of-university" },
+                      name: { type: "string", example: "Western University" },
+                      domain: { type: "string", example: "western.ca" },
+                      domainVerified: { type: "boolean", example: true },
+                      chainEnabled: { type: "boolean", example: false },
+                      createdAt: { type: "string", format: "date-time", example: "2026-01-16T12:00:00Z" },
+                      revocation: {
+                        type: "object",
+                        nullable: true,
+                        properties: {
+                          revokedAt: { type: "string", format: "date-time", example: "2026-01-16T15:00:00Z" },
+                          reason: { type: "string", example: "Violation of policy" },
+                          revokedBy: { type: "string", example: "admin-uuid" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+        },
+      },
+    },
+
+    "/admin/universities/{id}/revoke": {
+      put: {
+        summary: "Revoke a university",
+        tags: ["Admin"],
+        security: [{ SessionAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "uuid-of-university" },
+            description: "ID of the university to revoke",
+          },
+        ],
+        requestBody: {
+          required: false,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  reason: { type: "string", example: "Violation of policy" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "University revoked successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "University revoked successfully" },
+                    data: {
+                      type: "object",
+                      properties: {
+                        universityId: { type: "string", example: "uuid-of-university" },
+                        revokedAt: { type: "string", format: "date-time", example: "2026-01-16T15:00:00Z" },
+                        reason: { type: "string", example: "Violation of policy" },
+                        revokedBy: { type: "string", example: "admin-uuid" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: { description: "Bad request or already revoked" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+        },
+      },
+    },
+  }
 };
 
 export default swaggerDefinitions;

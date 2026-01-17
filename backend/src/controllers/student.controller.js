@@ -16,3 +16,11 @@ export const getStudent = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const revokeStudent = async (req, res) => {
+  try {
+    res.status(200).send("Student revoking successful");
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
