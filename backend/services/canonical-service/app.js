@@ -1,6 +1,6 @@
 //Currently established as app.js, will be changed to server.js in Phase 2
 
-import { canonicalize, hashCanonicalString, signStudentRecord, privateKey, publicKey } from './canonicalize.js';
+import { canonicalize, hashCanonicalString, signStudentRecord, privateKey, publicKey, verifyRSASign } from './canonicalize.js';
 
 function processStudentRecords() {
     //add more student data if needed from payload.json
@@ -25,6 +25,7 @@ function processStudentRecords() {
         const canonicalString = canonicalize(studentData);
         //const hash = hashCanonicalString(canonicalString);
         const signedHash = signStudentRecord(canonicalString, privateKey);
+        const verify = verifyRSASign(signedHash.canonicalString, publicKey, signedHash.signature)
 
         console.log("Canonical String:");
         console.log(canonicalString);
@@ -34,6 +35,9 @@ function processStudentRecords() {
 
         console.log("Hashed Signature: ")
         console.log(signedHash);
+
+        console.log("Verification of Signature: ")
+        console.log(verify)
     }
 }
 
