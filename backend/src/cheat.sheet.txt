@@ -1,0 +1,18 @@
+# Initial setup (only needs to be done once)
+
+cd into backend. All install must be in backend
+
+1. Remove node_modules
+rm -rf node_modules package-lock.json
+
+2. install from package.json
+npm install
+
+3. Verify prisma version 6
+npm install prisma@6 @prisma/client@6
+
+4. generate prisma
+npx prisma generate
+
+5. test db connection by running below command in backend
+node src/test.prisma.js
