@@ -23,15 +23,15 @@ function processStudentRecords() {
 
     for (const studentData of studentRecords) {
         const canonicalString = canonicalize(studentData);
-        //const hash = hashCanonicalString(canonicalString);
-        const signedHash = signStudentRecord(canonicalString, privateKey);
-        const verify = verifyRSASign(signedHash.canonicalString, publicKey, signedHash.signature)
+        const hash = hashCanonicalString(canonicalString);
+        const signedHash = signStudentRecord(hash, privateKey);
+        const verify = verifyRSASign(signedHash.hash, publicKey, signedHash.signature)
 
         console.log("Canonical String:");
         console.log(canonicalString);
 
-        //console.log("SHA-256 Hash:");
-        //console.log(hash);
+        console.log("SHA-256 Hash:");
+        console.log(hash);
 
         console.log("Hashed Signature: ")
         console.log(signedHash);
