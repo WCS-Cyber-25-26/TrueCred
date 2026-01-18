@@ -6,6 +6,6 @@ import adminMiddleware from '../middleware/admin.middleware.js';
 const router = express.Router();
 
 router.get('/universities', authMiddleware, adminMiddleware, getAllUniversities);
-router.put('/universities/:id/revoke', authMiddleware, adminMiddleware, revokeUniversity);
+router.post('/universities/:id/revoke', authMiddleware, adminMiddleware, revokeUniversity);
 
 export default router;
