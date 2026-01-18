@@ -255,7 +255,7 @@ const swaggerDefinitions = {
     },
 
     "/admin/universities/{id}/revoke": {
-      put: {
+      post: {
         summary: "Revoke a university",
         tags: ["Admin"],
         security: [{ SessionAuth: [] }],
@@ -282,7 +282,7 @@ const swaggerDefinitions = {
           },
         },
         responses: {
-          200: {
+          201: {
             description: "University revoked successfully",
             content: {
               "application/json": {
