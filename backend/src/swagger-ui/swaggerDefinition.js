@@ -22,46 +22,6 @@ const swaggerDefinitions = {
       },
     },
 
-    "/auth/register": {
-      "post": {
-        "summary": "Register a university",
-        "tags": ["Auth"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": { "type": "string", "example": "test3@western.ca" },
-                  "password": { "type": "string", "example": "TestPassword123" }
-                },
-                "required": ["email", "password"],
-                "description": "The university will be registered. The role is automatically set to 'UNIVERSITY'."
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "University registered successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string", "example": "University registered successfully" },
-                    "userId": { "type": "string", "example": "uuid-of-user" }
-                  }
-                }
-              }
-            }
-          },
-          "400": { "description": "Bad request / validation error" }
-        }
-      }
-    },
-
     "/auth/login": {
       "post": {
         "summary": "Login a university",
@@ -133,6 +93,7 @@ const swaggerDefinitions = {
         },
       },
     },
+
     "/students": {
       post: {
         summary: "Add a new student",
@@ -309,6 +270,87 @@ const swaggerDefinitions = {
           403: { description: "Admin access required" },
         },
       },
+    },
+
+    "/admin/universities/invite": {
+      post: {
+        summary: "Send an invitation to a university",
+        tags: ["Admin"],
+        security: [{ SessionAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string", example: "Western University" },
+                  domain: { type: "string", example: "western.ca" },
+                  email: { type: "string", example: "admin@western.ca" }
+                },
+                required: ["name", "domain", "email"]
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: "Invitation sent successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "University invitation sent successfully" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Bad request / domain mismatch / already exists" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" }
+        }
+      }
+    },
+    
+    "/universities/invitations/accept": {
+      post: {
+        summary: "Accept a university invitation and create a password",
+        tags: ["University"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  token: { type: "string", example: "a1b2c3d4e5f6g7h8i9j0" },
+                  password: { type: "string", example: "StrongPassword123!" }
+                },
+                required: ["token", "password"]
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "University account activated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "University account activated successfully" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Invalid token, expired, or already used" },
+          404: { description: "Invite token not found" }
+        }
+      }
     },
   }
 };
