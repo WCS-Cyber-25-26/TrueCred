@@ -104,7 +104,8 @@ export function signStudentRecord(hash, privateKey) {
 
   let signature = crypto.sign("sha256", Buffer.from(hash, "utf8"), {
     key: privateKey,
-    padding: crypto.constants.RSA_PKCS1_PADDING,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+    saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,
   });
 
   return {
@@ -117,7 +118,8 @@ export function verifyRSASign(message, publicKey, signature) {
     "sha256",
     Buffer.from(message, "utf8"), {
     key: publicKey,
-    padding: crypto.constants.RSA_PKCS1_PADDING,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+    saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST,
   },
     Buffer.from(signature, "base64")
   );
