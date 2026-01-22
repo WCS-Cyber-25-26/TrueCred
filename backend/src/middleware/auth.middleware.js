@@ -1,51 +1,33 @@
 import prisma from '../../prisma/client.js';
-import { hashSessionToken } from '../utils/token.js';
+import { verifyJwt } from '../utils/jwt.js';
 
-export default async function authMiddleware(req, res, next) {
-  let authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({error: 'Unauthorized'});
-  }
-
-  let token = authHeader;
-  if (token.startsWith('Bearer ')) {
-    token = token.slice(7);
-  }
-
-  const hashedToken = hashSessionToken(token);
-
+export default function authMiddleware(req, res, next) {
   try {
-    const session = await prisma.session.findUnique({
-      where: {token: hashedToken},
-      include: {user: true},
-    });
+    let token;
 
-    if (!session) {
-      return res.status(401).json({error: 'Invalid session token'});
+    if (req.cookies?.access_token) {
+      token = req.cookies.access_token;
     }
 
-    if (new Date() > session.expiresAt) {
-      await prisma.session.update({
-        where: {token: hashedToken},
-        data: {revoked: true},
-      });
-      return res.status(401).json({error: 'Session expired'});
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
     }
 
-    if (session.revoked) {
-      return res.status(401).json({error: 'Session revoked'});
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    const payload = verifyJwt(token);
 
     req.user = {
-      id: session.user.id,
-      role: session.user.role,
+      id: payload.sub,
+      role: payload.role,
+      email: payload.email,
     };
-
-    req.token = hashedToken;
 
     next();
   } catch (err) {
-    return res.status(500).json({error: 'Server error'});
+    console.error('JWT auth error:', err);
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
