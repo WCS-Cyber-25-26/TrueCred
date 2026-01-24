@@ -49,9 +49,9 @@ model Session {
   createdAt DateTime @default(now())
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])
-  @@index([userId])
-}
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model Session {
+// }
 
 model Student {
   id                String       @id
