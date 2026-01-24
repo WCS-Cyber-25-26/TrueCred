@@ -1,7 +1,7 @@
 generator client {
   provider  = "prisma-client-js"
   output    = "../src/generated/prisma"
-  transpile = true
+  transpile = "true"
 }
 
 datasource db {
@@ -9,130 +9,142 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         String      @id @default(uuid())
-  email      String      @unique
-  password   String
-  role       UserRole
-  createdAt  DateTime    @default(now())
-  university University?
-
-  sessions Session[]
-}
-
-model Session {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  revoked   Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@index([token])
-  @@index([userId])
-}
-
-model University {
-  id               String                @id @default(uuid())
-  name             String
-  domain           String                @unique
-  domainVerified   Boolean               @default(false)
-  chainEnabled     Boolean               @default(false)
-  blockchainId     String?
-  createdAt        DateTime              @default(now())
-  userId           String                @unique
-  credentials      Credential[]
-  students         Student[]
-  user             User                  @relation(fields: [userId], references: [id])
-  verificationJobs VerificationJob[]
-  revocation       UniversityRevocation?
-}
-
-model UniversityRevocation {
-  id           String     @id @default(uuid())
-  universityId String     @unique
-  revokedAt    DateTime   @default(now())
-  reason       String?
-  revokedBy    String?
-  university   University @relation(fields: [universityId], references: [id])
-}
-
-model Student {
-  id             String   @id @default(uuid())
-  pseudonymousId String   @unique
-  createdAt      DateTime @default(now())
-
-  firstName String
-  lastName  String
+model AuditLog {
+  id        String   @id
+  action    String
+  actorId   String?
   metadata  Json?
-
-  universityId String
-  university   University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
-  credentials  Credential[]
-
-  @@unique([pseudonymousId, universityId])
-  @@index([universityId])
+  createdAt DateTime @default(now())
 }
 
 model Credential {
-  id            String   @id @default(uuid())
-  canonicalHash String   @unique
-  createdAt     DateTime @default(now())
-
-  studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  universityId String
-  university   University @relation(fields: [universityId], references: [id])
-
-  revocation CredentialRevocation?
+  id                   String                @id
+  canonicalHash        String                @unique
+  createdAt            DateTime              @default(now())
+  studentId            String
+  universityId         String
+  Student              Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  University           University            @relation(fields: [universityId], references: [id])
+  CredentialRevocation CredentialRevocation?
 
   @@index([studentId])
   @@index([universityId])
 }
 
 model CredentialRevocation {
-  id           String     @id @default(uuid())
+  id           String     @id
   credentialId String     @unique
   revokedAt    DateTime   @default(now())
   reason       String?
   revokedBy    String?
-  credential   Credential @relation(fields: [credentialId], references: [id])
+  Credential   Credential @relation(fields: [credentialId], references: [id])
+}
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Student {
+  id                String       @id
+  pseudonymousId    String       @unique
+  createdAt         DateTime     @default(now())
+  firstName         String
+  lastName          String
+  degree            String
+  degreeAwardedDate String
+  hiddenIdentifier  String
+  universityId      String
+  Credential        Credential[]
+  University        University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@unique([pseudonymousId, universityId])
+  @@index([universityId])
+}
+
+model University {
+  id                   String                 @id
+  name                 String
+  domain               String                 @unique
+  domainVerified       Boolean                @default(false)
+  verifiedAt           DateTime?
+  verifiedByUserId     String?
+  verificationNote     String?
+  chainEnabled         Boolean                @default(false)
+  blockchainId         String?
+  createdAt            DateTime               @default(now())
+  userId               String                 @unique
+  Credential           Credential[]
+  Student              Student[]
+  User                 User                   @relation(fields: [userId], references: [id])
+  UniversityInvitation UniversityInvitation[]
+  UniversityRevocation UniversityRevocation?
+  VerificationJob      VerificationJob[]
+}
+
+model UniversityInvitation {
+  id           String     @id
+  universityId String
+  email        String
+  token        String     @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  createdBy    String
+  University   University @relation(fields: [universityId], references: [id])
+}
+
+model UniversityRevocation {
+  id           String     @id
+  universityId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  University   University @relation(fields: [universityId], references: [id])
+}
+
+model User {
+  id         String      @id
+  email      String      @unique
+  password   String
+  role       UserRole
+  createdAt  DateTime    @default(now())
+  Session    Session[]
+  University University?
 }
 
 model VerificationJob {
-  id           String              @id @default(uuid())
-  status       VerificationStatus  @default(PENDING)
-  createdAt    DateTime            @default(now())
-  completedAt  DateTime?
-  ipAddress    String?
-  geoLocation  String?
-  userAgent    String?
-  universityId String?
-  university   University?         @relation(fields: [universityId], references: [id])
-  result       VerificationResult?
+  id                 String              @id
+  status             VerificationStatus  @default(PENDING)
+  createdAt          DateTime            @default(now())
+  completedAt        DateTime?
+  ipAddress          String?
+  geoLocation        String?
+  userAgent          String?
+  universityId       String?
+  University         University?         @relation(fields: [universityId], references: [id])
+  VerificationResult VerificationResult?
 
-  @@index([universityId])
   @@index([status])
+  @@index([universityId])
 }
 
 model VerificationResult {
-  id              String          @id @default(uuid())
+  id              String          @id
   ocrStatus       String
   aiScore         Float?
   blockchainMatch Boolean?
   verdict         String
   jobId           String          @unique
-  job             VerificationJob @relation(fields: [jobId], references: [id])
-}
-
-model AuditLog {
-  id        String   @id @default(uuid())
-  action    String
-  actorId   String?
-  metadata  Json?
-  createdAt DateTime @default(now())
+  VerificationJob VerificationJob @relation(fields: [jobId], references: [id])
 }
 
 enum UserRole {
