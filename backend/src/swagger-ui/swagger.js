@@ -16,18 +16,16 @@ const options = {
     ],
     components: {
       securitySchemes: {
-        SessionAuth: {
+        BearerAuth: {
           type: "http",
           scheme: "bearer",
-          bearerFormat: "SessionToken",
-          description: "Paste the session token only (no 'Bearer ' needed)",
-        },
-      },
+          bearerFormat: "JWT",
+          description: "Paste JWT here (only for testing, actual app uses HTTP-only cookie)."
+        }
+      }
     },
     security: [
-      {
-        SessionAuth: [],
-      },
+      { BearerAuth: [] }
     ],
     paths: swaggerDefinitions.paths,
   },

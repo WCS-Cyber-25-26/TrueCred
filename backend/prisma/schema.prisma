@@ -9,23 +9,96 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model AuditLog {
-  id        String   @id
-  action    String
-  actorId   String?
-  metadata  Json?
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  role       UserRole
+  createdAt  DateTime    @default(now())
+  sessions   Session[]
+  university University?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model University {
+  id                    String                 @id @default(uuid())
+  name                  String
+  domain                String                 @unique
+  domainVerified        Boolean                @default(false)
+  verifiedAt            DateTime?
+  verifiedByUserId      String?
+  verificationNote      String?
+  chainEnabled          Boolean                @default(false)
+  blockchainId          String?
+  createdAt             DateTime               @default(now())
+  userId                String                 @unique
+  credentials           Credential[]
+  students              Student[]
+  user                  User                   @relation(fields: [userId], references: [id])
+  UniversityInvitations UniversityInvitation[]
+  revocation            UniversityRevocation?
+  verificationJobs      VerificationJob[]
+}
+
+model UniversityInvitation {
+  id           String     @id @default(uuid())
+  universityId String
+  email        String
+  token        String     @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  createdBy    String
+  university   University @relation(fields: [universityId], references: [id])
+}
+
+model UniversityRevocation {
+  id           String     @id @default(uuid())
+  universityId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  university   University @relation(fields: [universityId], references: [id])
+}
+
+model Student {
+  id                String       @id @default(uuid())
+  pseudonymousId    String       @unique
+  createdAt         DateTime     @default(now())
+  firstName         String
+  lastName          String
+  degree            String
+  degreeAwardedDate String
+  hiddenIdentifier  String
+  universityId      String
+  credentials       Credential[]
+  university        University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@unique([pseudonymousId, universityId])
+  @@index([universityId])
 }
 
 model Credential {
-  id                   String                @id
-  canonicalHash        String                @unique
-  createdAt            DateTime              @default(now())
-  studentId            String
-  universityId         String
-  Student              Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  University           University            @relation(fields: [universityId], references: [id])
-  CredentialRevocation CredentialRevocation?
+  id            String                @id @default(uuid())
+  canonicalHash String                @unique
+  createdAt     DateTime              @default(now())
+  studentId     String
+  universityId  String
+  student       Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university    University            @relation(fields: [universityId], references: [id])
+  revocation    CredentialRevocation?
 
   @@index([studentId])
   @@index([universityId])
