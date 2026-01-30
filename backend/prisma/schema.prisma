@@ -105,117 +105,46 @@ model Credential {
 }
 
 model CredentialRevocation {
-  id           String     @id
+  id           String     @id @default(uuid())
   credentialId String     @unique
   revokedAt    DateTime   @default(now())
   reason       String?
   revokedBy    String?
-  Credential   Credential @relation(fields: [credentialId], references: [id])
-}
-
-model Session {
-  id        String   @id
-  token     String   @unique
-  userId    String
-  expiresAt DateTime
-  revoked   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-}
-
-model Student {
-  id                String       @id
-  pseudonymousId    String       @unique
-  createdAt         DateTime     @default(now())
-  firstName         String
-  lastName          String
-  degree            String
-  degreeAwardedDate String
-  hiddenIdentifier  String
-  universityId      String
-  Credential        Credential[]
-  University        University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
-
-  @@unique([pseudonymousId, universityId])
-  @@index([universityId])
-}
-
-model University {
-  id                   String                 @id
-  name                 String
-  domain               String                 @unique
-  domainVerified       Boolean                @default(false)
-  verifiedAt           DateTime?
-  verifiedByUserId     String?
-  verificationNote     String?
-  chainEnabled         Boolean                @default(false)
-  blockchainId         String?
-  createdAt            DateTime               @default(now())
-  userId               String                 @unique
-  Credential           Credential[]
-  Student              Student[]
-  User                 User                   @relation(fields: [userId], references: [id])
-  UniversityInvitation UniversityInvitation[]
-  UniversityRevocation UniversityRevocation?
-  VerificationJob      VerificationJob[]
-}
-
-model UniversityInvitation {
-  id           String     @id
-  universityId String
-  email        String
-  token        String     @unique
-  expiresAt    DateTime
-  acceptedAt   DateTime?
-  createdAt    DateTime   @default(now())
-  createdBy    String
-  University   University @relation(fields: [universityId], references: [id])
-}
-
-model UniversityRevocation {
-  id           String     @id
-  universityId String     @unique
-  revokedAt    DateTime   @default(now())
-  reason       String?
-  revokedBy    String?
-  University   University @relation(fields: [universityId], references: [id])
-}
-
-model User {
-  id         String      @id
-  email      String      @unique
-  password   String
-  role       UserRole
-  createdAt  DateTime    @default(now())
-  Session    Session[]
-  University University?
+  credential   Credential @relation(fields: [credentialId], references: [id])
 }
 
 model VerificationJob {
-  id                 String              @id
-  status             VerificationStatus  @default(PENDING)
-  createdAt          DateTime            @default(now())
-  completedAt        DateTime?
-  ipAddress          String?
-  geoLocation        String?
-  userAgent          String?
-  universityId       String?
-  University         University?         @relation(fields: [universityId], references: [id])
-  VerificationResult VerificationResult?
+  id           String              @id @default(uuid())
+  status       VerificationStatus  @default(PENDING)
+  createdAt    DateTime            @default(now())
+  completedAt  DateTime?
+  ipAddress    String?
+  geoLocation  String?
+  userAgent    String?
+  universityId String?
+  university   University?         @relation(fields: [universityId], references: [id])
+  result       VerificationResult?
 
-  @@index([status])
   @@index([universityId])
+  @@index([status])
 }
 
 model VerificationResult {
-  id              String          @id
+  id              String          @id @default(uuid())
   ocrStatus       String
   aiScore         Float?
   blockchainMatch Boolean?
   verdict         String
   jobId           String          @unique
-  VerificationJob VerificationJob @relation(fields: [jobId], references: [id])
+  job             VerificationJob @relation(fields: [jobId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
 }
 
 enum UserRole {

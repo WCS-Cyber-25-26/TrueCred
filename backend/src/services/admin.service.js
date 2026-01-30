@@ -5,7 +5,28 @@ const INVITE_EXPIRY_HOURS = 24;
 
 const adminService = {
     async getAllUniversities() {
+        return await prisma.university.findMany({
+            select: {
+              id: true,
+              name: true,
+              domain: true,
+              domainVerified: true,
+              chainEnabled: true,
+              createdAt: true,
+              userId: true,
 
+              revocation: {
+                select: {
+                  revokedAt: true,
+                  reason: true,
+                  revokedBy: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          });
     },
     async revokeUniversity() {
 
