@@ -75,6 +75,7 @@ model UniversityRevocation {
 
 model Student {
   id               String       @id @default(uuid())
+  fullName         String
   pseudonymousId   String
   hiddenIdentifier String
   createdAt        DateTime     @default(now())
