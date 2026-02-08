@@ -3,7 +3,6 @@ import { getAllUniversities, revokeUniversity, sendInvite } from '../controllers
 import authMiddleware from '../middleware/auth.middleware.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
-
 const router = express.Router();
 
 router.get('/universities', authMiddleware, adminMiddleware, getAllUniversities);

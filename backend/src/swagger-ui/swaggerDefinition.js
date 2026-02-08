@@ -94,6 +94,45 @@ const swaggerDefinitions = {
       },
     },
 
+    "/universities/invitations/accept": {
+      post: {
+        summary: "Accept a university invitation and create a password",
+        tags: ["Public"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  token: { type: "string", example: "a1b2c3d4e5f6g7h8i9j0" },
+                  password: { type: "string", example: "StrongPassword123!" }
+                },
+                required: ["token", "password"]
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "University account activated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "University account activated successfully" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Invalid token, expired, or already used" },
+          404: { description: "Invite token not found" }
+        }
+      }
+    },
+
     "/students": {
       post: {
         summary: "Add a new student",
@@ -314,10 +353,11 @@ const swaggerDefinitions = {
       }
     },
     
-    "/universities/invitations/accept": {
+    "/universities/credentials": {
       post: {
-        summary: "Accept a university invitation and create a password",
+        summary: "Create a single credential for a student",
         tags: ["University"],
+        security: [{ SessionAuth: [] }],
         requestBody: {
           required: true,
           content: {
@@ -325,30 +365,203 @@ const swaggerDefinitions = {
               schema: {
                 type: "object",
                 properties: {
-                  token: { type: "string", example: "a1b2c3d4e5f6g7h8i9j0" },
-                  password: { type: "string", example: "StrongPassword123!" }
+                  studentId: { type: "string", example: "student-uuid" },
+                  programName: { type: "string", example: "Bachelor of Science in Computer Science" },
+                  issueDate: { type: "string", format: "date", example: "2026-01-15" },
+                  credentialType: { type: "string", example: "degree" }
                 },
-                required: ["token", "password"]
+                required: ["studentId", "programName", "issueDate"]
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: "Credential created successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Credential created successfully" },
+                    credentialId: { type: "string", example: "credential-uuid" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" }
+        }
+      }
+    },
+
+    "/universities/credentials/bulk": {
+      post: {
+        summary: "Create multiple credentials in bulk",
+        tags: ["University"],
+        security: [{ SessionAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  credentials: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        studentId: { type: "string", example: "student-uuid-1" },
+                        programName: { type: "string", example: "Bachelor of Science in Computer Science" },
+                        issueDate: { type: "string", format: "date", example: "2026-01-15" },
+                        credentialType: { type: "string", example: "degree" }
+                      },
+                      required: ["studentId", "programName", "issueDate"]
+                    }
+                  }
+                },
+                required: ["credentials"]
+              }
+            }
+          }
+        },
+        responses: {
+          201: {
+            description: "Bulk credentials created successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Bulk credential creation successful" },
+                    createdCount: { type: "integer", example: 5 },
+                    credentialIds: { type: "array", items: { type: "string" } }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" }
+        }
+      }
+    },
+
+    "/universities/credentials/revoke": {
+      post: {
+        summary: "Revoke a credential",
+        tags: ["University"],
+        security: [{ SessionAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  credentialId: { type: "string", example: "credential-uuid" },
+                  reason: { type: "string", example: "Fraud detected" }
+                },
+                required: ["credentialId"]
               }
             }
           }
         },
         responses: {
           200: {
-            description: "University account activated successfully",
+            description: "Credential revoked successfully",
             content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
-                    message: { type: "string", example: "University account activated successfully" }
+                    message: { type: "string", example: "Credential revoking successful" },
+                    revokedAt: { type: "string", format: "date-time", example: "2026-01-16T15:00:00Z" }
                   }
                 }
               }
             }
           },
-          400: { description: "Invalid token, expired, or already used" },
-          404: { description: "Invite token not found" }
+          400: { description: "Bad request or credential already revoked" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+          404: { description: "Credential not found" }
+        }
+      }
+    },
+
+    "/credentials/student/{studentId}": {
+      get: {
+        summary: "Get credentials by student ID",
+        tags: ["Credential"],
+        security: [{ SessionAuth: [] }],
+        parameters: [
+          {
+            name: "studentId",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "student-uuid" },
+            description: "Student ID to fetch credentials for",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Credentials retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Credential retrieval successful" },
+                    credentials: { type: "array", items: { type: "object" } }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+          404: { description: "Student not found" }
+        }
+      }
+    },
+
+    "/credentials/{credentialId}/revocation-status": {
+      get: {
+        summary: "Check credential revocation status",
+        tags: ["Credential"],
+        security: [{ SessionAuth: [] }],
+        parameters: [
+          {
+            name: "credentialId",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "credential-uuid" },
+            description: "Credential ID to check revocation status",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Credential revocation status retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Credential revocation status retrieval successful" },
+                    revoked: { type: "boolean", example: false }
+                  }
+                }
+              }
+            }
+          },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+          404: { description: "Credential not found" }
         }
       }
     },
