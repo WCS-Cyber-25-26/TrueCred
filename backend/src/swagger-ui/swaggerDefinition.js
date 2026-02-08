@@ -352,6 +352,58 @@ const swaggerDefinitions = {
         }
       }
     },
+
+    "/admin/universities/{id}": {
+      put: {
+        summary: "Update university information",
+        tags: ["Admin"],
+        security: [{ SessionAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "uuid-of-university" },
+            description: "ID of the university to update",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string", example: "Western University" },
+                  domain: { type: "string", example: "western.ca" },
+                  domainVerified: { type: "boolean", example: true },
+                  chainEnabled: { type: "boolean", example: false }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "University updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "University updated successfully" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+          404: { description: "University not found" }
+        }
+      }
+    },
     
     "/universities/credentials": {
       post: {
@@ -393,6 +445,57 @@ const swaggerDefinitions = {
           400: { description: "Bad request" },
           401: { description: "Unauthorized" },
           403: { description: "Admin access required" }
+        }
+      }
+    },
+
+    "/universities/credentials/{id}": {
+      put: {
+        summary: "Update an existing credential",
+        tags: ["University"],
+        security: [{ SessionAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string", example: "credential-uuid" },
+            description: "Credential ID to update",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  programName: { type: "string", example: "Bachelor of Science in Computer Science" },
+                  issueDate: { type: "string", format: "date", example: "2026-01-15" },
+                  credentialType: { type: "string", example: "degree" }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "Credential updated successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: { type: "string", example: "Credential updated successfully" }
+                  }
+                }
+              }
+            }
+          },
+          400: { description: "Bad request" },
+          401: { description: "Unauthorized" },
+          403: { description: "Admin access required" },
+          404: { description: "Credential not found" }
         }
       }
     },

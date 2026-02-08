@@ -97,6 +97,9 @@ const adminService = {
             message: 'University invitation sent',
         };
     },
+    async updateUniversity() {
+        
+    }
 }
 
 export default adminService;

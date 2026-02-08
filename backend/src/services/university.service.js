@@ -14,6 +14,10 @@ const universityService = {
 
     async revokeCredential(){
 
+    },
+
+    async updateCredential(){
+        
     }
 }
 

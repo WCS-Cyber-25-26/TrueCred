@@ -31,3 +31,11 @@ export const revokeCredential = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const updateCredential = async (req, res) => {
+    try {
+        res.status(200).send("Credential update successful");
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
