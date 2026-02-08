@@ -33,8 +33,8 @@ const swaggerDefinitions = {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": { "type": "string", "example": "test@western.ca" },
-                  "password": { "type": "string", "example": "StrongPassword123" }
+                  "email": { "type": "string", "example": "dev@western.ca" },
+                  "password": { "type": "string", "example": "dev" }
                 },
                 "required": ["email", "password"]
               }
@@ -50,48 +50,54 @@ const swaggerDefinitions = {
                   "type": "object",
                   "properties": {
                     "message": { "type": "string", "example": "Login successful" },
-                    "sessionToken": { "type": "string", "example": "a1b2c3d4e5f6g7h8i9j0" }
-                  }
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmMjAyNWNlYS1mYmRkLTQxOTItYjBhNi05OGIwODc5OGFlNDMiLCJyb2xlIjoiQURNSU4iLCJlbWFpbCI6ImRldkB3ZXN0ZXJuLmNhIiwiaWF0IjoxNzcwNTQyMTg0LCJleHAiOjE3NzA1NDMwODR9.x8YoR7r5DCUy44Qd64FFhyQemeyx8c4diGQZKPwvFi0"
+                    }
+                  },
+                  "required": ["message", "token"]
                 }
               }
             }
           },
           "400": { "description": "Invalid credentials or login failed" }
         }
+
       }
     },
 
     "/auth/logout": {
-      post: {
-        summary: "Logout the currently logged-in university",
-        tags: ["Auth"],
-        security: [
-          { SessionAuth: [] }
+      "post": {
+        "summary": "Logout the currently logged-in university",
+        "tags": ["Auth"],
+        "security": [
+          { "bearerAuth": [] }
         ],
-        requestBody: {
-          required: false,
-          description: "No body required. Authorization header with session token is used."
+        "requestBody": {
+          "required": false,
+          "description": "No body required. Send the JWT token in the Authorization header as 'Bearer <token>'."
         },
-        responses: {
-          200: {
-            description: "Logout successful and session revoked",
-            content: {
+        "responses": {
+          "200": {
+            "description": "Logout successful and token invalidated",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Logged out successfully" },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Logged out successfully" }
                   },
-                },
-              },
-            },
+                  "required": ["message"]
+                }
+              }
+            }
           },
-          401: {
-            description: "Unauthorized – session token missing, invalid, or already revoked"
+          "401": {
+            "description": "Unauthorized - JWT missing, invalid, or already revoked"
           },
-          500: { description: "Server error" }
-        },
-      },
+          "500": { "description": "Server error" }
+        }
+      }
     },
 
     "/universities/invitations/accept": {
@@ -105,7 +111,7 @@ const swaggerDefinitions = {
               schema: {
                 type: "object",
                 properties: {
-                  token: { type: "string", example: "a1b2c3d4e5f6g7h8i9j0" },
+                  token: { type: "string", example: "f636c46d0592d58e4f6479fea0a35cec9cd3af13af3a59f2fc2919b4458dc43b" },
                   password: { type: "string", example: "StrongPassword123!" }
                 },
                 required: ["token", "password"]
@@ -133,6 +139,7 @@ const swaggerDefinitions = {
       }
     },
 
+    //legacy
     "/students": {
       post: {
         summary: "Add a new student",
@@ -176,6 +183,7 @@ const swaggerDefinitions = {
       },
     },
 
+    //legacy
     "/students/{id}": {
       get: {
         summary: "Get student by ID",
@@ -213,47 +221,48 @@ const swaggerDefinitions = {
     },
 
     "/admin/universities": {
-      get: {
-        summary: "Get all universities",
-        tags: ["Admin"],
-        security: [{ SessionAuth: [] }],
-        responses: {
-          200: {
-            description: "List of universities",
-            content: {
+      "get": {
+        "summary": "Get all universities",
+        "tags": ["Admin"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of universities",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string", example: "uuid-of-university" },
-                      name: { type: "string", example: "Western University" },
-                      domain: { type: "string", example: "western.ca" },
-                      domainVerified: { type: "boolean", example: true },
-                      chainEnabled: { type: "boolean", example: false },
-                      createdAt: { type: "string", format: "date-time", example: "2026-01-16T12:00:00Z" },
-                      revocation: {
-                        type: "object",
-                        nullable: true,
-                        properties: {
-                          revokedAt: { type: "string", format: "date-time", example: "2026-01-16T15:00:00Z" },
-                          reason: { type: "string", example: "Violation of policy" },
-                          revokedBy: { type: "string", example: "admin-uuid" },
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "example": "60ec527b-c251-44fb-8664-be8eeb59cc3d" },
+                      "name": { "type": "string", "example": "Western University" },
+                      "domain": { "type": "string", "example": "western.ca" },
+                      "domainVerified": { "type": "boolean", "example": true },
+                      "chainEnabled": { "type": "boolean", "example": false },
+                      "createdAt": { "type": "string", "format": "date-time", "example": "2026-02-08T03:04:19.716Z" },
+                      "userId": { "type": "string", "example": "b1fe0142-8213-45be-be1e-b8871ed92401" },
+                      "revocation": {
+                        "type": "object",
+                        "properties": {
+                          "status": { "type": "string", "example": "Active" }
                         },
-                      },
+                        "nullable": true
+                      }
                     },
-                  },
-                },
-              },
-            },
+                    "required": ["id", "name", "domain", "domainVerified", "chainEnabled", "createdAt", "userId", "revocation"]
+                  }
+                }
+              }
+            }
           },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
-        },
-      },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Admin access required" }
+        }
+      }
     },
 
+    //needs changes
     "/admin/universities/{id}/revoke": {
       post: {
         summary: "Revoke a university",
@@ -353,6 +362,7 @@ const swaggerDefinitions = {
       }
     },
 
+    //needs updates
     "/admin/universities/{id}": {
       put: {
         summary: "Update university information",
@@ -404,47 +414,49 @@ const swaggerDefinitions = {
         }
       }
     },
-    
+
     "/universities/credentials": {
-      post: {
-        summary: "Create a single credential for a student",
-        tags: ["University"],
-        security: [{ SessionAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
+      "post": {
+        "summary": "Create a single credential for a student",
+        "tags": ["University"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
             "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  studentId: { type: "string", example: "student-uuid" },
-                  programName: { type: "string", example: "Bachelor of Science in Computer Science" },
-                  issueDate: { type: "string", format: "date", example: "2026-01-15" },
-                  credentialType: { type: "string", example: "degree" }
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "studentId": { "type": "string", "example": "student-uuid" },
+                  "universityId": { "type": "string", "example": "university-uuid" },
+                  "degreeName": { "type": "string", "example": "Bachelor of Science in Computer Science" },
+                  "program": { "type": "string", "example": "Computer Science" },
+                  "canonicalHash": { "type": "string", "example": "abc123def456hash" },
+                  "awardedDate": { "type": "string", "format": "date", "example": "2026-01-15" }
                 },
-                required: ["studentId", "programName", "issueDate"]
+                "required": ["studentId", "universityId", "degreeName", "awardedDate"]
               }
             }
           }
         },
-        responses: {
-          201: {
-            description: "Credential created successfully",
-            content: {
+        "responses": {
+          "201": {
+            "description": "Credential created successfully",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Credential created successfully" },
-                    credentialId: { type: "string", example: "credential-uuid" }
-                  }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Credential created successfully" }
+                  },
+                  "required": ["message"]
                 }
               }
             }
           },
-          400: { description: "Bad request" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" }
+          "400": { "description": "Bad request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Admin access required" }
         }
       }
     },
@@ -501,170 +513,292 @@ const swaggerDefinitions = {
     },
 
     "/universities/credentials/bulk": {
-      post: {
-        summary: "Create multiple credentials in bulk",
-        tags: ["University"],
-        security: [{ SessionAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
+      "post": {
+        "summary": "Create multiple credentials in bulk",
+        "tags": ["University"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
             "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  credentials: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        studentId: { type: "string", example: "student-uuid-1" },
-                        programName: { type: "string", example: "Bachelor of Science in Computer Science" },
-                        issueDate: { type: "string", format: "date", example: "2026-01-15" },
-                        credentialType: { type: "string", example: "degree" }
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credentials": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "studentId": { "type": "string", "example": "student-uuid" },
+                        "universityId": { "type": "string", "example": "university-uuid" },
+                        "degreeName": {
+                          "type": "string",
+                          "example": "Bachelor of Science in Computer Science"
+                        },
+                        "program": {
+                          "type": "string",
+                          "example": "Computer Science"
+                        },
+                        "canonicalHash": {
+                          "type": "string",
+                          "example": "abc123def456hash"
+                        },
+                        "awardedDate": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "2026-01-15"
+                        }
                       },
-                      required: ["studentId", "programName", "issueDate"]
+                      "required": [
+                        "studentId",
+                        "universityId",
+                        "degreeName",
+                        "awardedDate"
+                      ]
                     }
                   }
                 },
-                required: ["credentials"]
+                "required": ["credentials"]
               }
             }
           }
         },
-        responses: {
-          201: {
-            description: "Bulk credentials created successfully",
-            content: {
+        "responses": {
+          "201": {
+            "description": "Bulk credentials created successfully",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Bulk credential creation successful" },
-                    createdCount: { type: "integer", example: 5 },
-                    credentialIds: { type: "array", items: { type: "string" } }
-                  }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Bulk credential creation successful"
+                    },
+                    "createdCount": {
+                      "type": "integer",
+                      "example": 5
+                    },
+                    "credentialIds": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  },
+                  "required": ["message", "createdCount", "credentialIds"]
                 }
               }
             }
           },
-          400: { description: "Bad request" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" }
+          "400": { "description": "Bad request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Admin access required" }
         }
       }
     },
 
-    "/universities/credentials/revoke": {
-      post: {
-        summary: "Revoke a credential",
-        tags: ["University"],
-        security: [{ SessionAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  credentialId: { type: "string", example: "credential-uuid" },
-                  reason: { type: "string", example: "Fraud detected" }
-                },
-                required: ["credentialId"]
-              }
-            }
+    "/universities/credentials/{id}/revoke": {
+      "post": {
+        "summary": "Revoke a credential",
+        "tags": ["University"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "credentialId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the credential to revoke",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "60ec527b-c251-44fb-8664-be8eeb59cc3d"
           }
-        },
-        responses: {
-          200: {
-            description: "Credential revoked successfully",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Credential revoking successful" },
-                    revokedAt: { type: "string", format: "date-time", example: "2026-01-16T15:00:00Z" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Fraud detected"
                   }
                 }
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Credential revoked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Credential revoked successfully"
+                    },
+                    "revokedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-01-16T15:00:00Z"
+                    }
+                  },
+                  "required": ["message", "revokedAt"]
+                }
+              }
+            }
           },
-          400: { description: "Bad request or credential already revoked" },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
-          404: { description: "Credential not found" }
+          "400": {
+            "description": "Bad request or credential already revoked"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Admin access required"
+          },
+          "404": {
+            "description": "Credential not found"
+          }
         }
       }
     },
 
     "/credentials/student/{studentId}": {
-      get: {
-        summary: "Get credentials by student ID",
-        tags: ["Credential"],
-        security: [{ SessionAuth: [] }],
-        parameters: [
+      "get": {
+        "summary": "Get all credentials for a student",
+        "tags": ["Credential"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
           {
-            name: "studentId",
-            in: "path",
-            required: true,
-            schema: { type: "string", example: "student-uuid" },
-            description: "Student ID to fetch credentials for",
-          },
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the student",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "b1fe0142-8213-45be-be1e-b8871ed92401"
+          }
         ],
-        responses: {
-          200: {
-            description: "Credentials retrieved successfully",
-            content: {
+        "responses": {
+          "200": {
+            "description": "List of credentials for the student",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Credential retrieval successful" },
-                    credentials: { type: "array", items: { type: "object" } }
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "universityId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "degreeName": {
+                        "type": "string",
+                        "example": "Bachelor of Science in Computer Science"
+                      },
+                      "program": {
+                        "type": "string",
+                        "example": "Computer Science"
+                      },
+                      "canonicalHash": {
+                        "type": "string",
+                        "example": "abc123def456hash"
+                      },
+                      "awardedDate": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "revocation": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "example": "Active"
+                          },
+                          "revokedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "reason": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "studentId",
+                      "universityId",
+                      "degreeName",
+                      "awardedDate"
+                    ]
                   }
                 }
               }
             }
           },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
-          404: { description: "Student not found" }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Admin access required" },
+          "404": { "description": "Student not found" }
         }
       }
     },
 
     "/credentials/{credentialId}/revocation-status": {
-      get: {
-        summary: "Check credential revocation status",
-        tags: ["Credential"],
-        security: [{ SessionAuth: [] }],
-        parameters: [
+      "get": {
+        "summary": "Check credential revocation status",
+        "tags": ["Credential"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
           {
-            name: "credentialId",
-            in: "path",
-            required: true,
-            schema: { type: "string", example: "credential-uuid" },
-            description: "Credential ID to check revocation status",
-          },
+            "name": "credentialId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the credential",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "60ec527b-c251-44fb-8664-be8eeb59cc3d"
+          }
         ],
-        responses: {
-          200: {
-            description: "Credential revocation status retrieved successfully",
-            content: {
+        "responses": {
+          "200": {
+            "description": "Credential revocation status",
+            "content": {
               "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: { type: "string", example: "Credential revocation status retrieval successful" },
-                    revoked: { type: "boolean", example: false }
-                  }
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "revoked": {
+                      "type": "boolean",
+                      "example": false
+                    }
+                  },
+                  "required": ["revoked"]
                 }
               }
             }
           },
-          401: { description: "Unauthorized" },
-          403: { description: "Admin access required" },
-          404: { description: "Credential not found" }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Admin access required" },
+          "404": { "description": "Credential not found" }
         }
       }
     },
