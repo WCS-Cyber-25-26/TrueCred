@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import prisma from '../../prisma/client.js';
 import { generateInviteToken, hashInviteToken } from '../utils/token.js';
 
@@ -54,6 +55,7 @@ const adminService = {
 
         const user = await prisma.user.create({
             data: {
+                id: crypto.randomUUID(),
                 email,
                 password: '',
                 role: 'UNIVERSITY',
@@ -62,6 +64,7 @@ const adminService = {
 
         const university = await prisma.university.create({
             data: {
+                id: crypto.randomUUID(),
                 name,
                 domain,
                 userId: user.id,
@@ -94,6 +97,9 @@ const adminService = {
             message: 'University invitation sent',
         };
     },
+    async updateUniversity() {
+        
+    }
 }
 
 export default adminService;

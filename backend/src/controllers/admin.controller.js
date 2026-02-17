@@ -53,3 +53,11 @@ export const sendInvite = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const updateUniversity = async (req, res) => {
+    try {
+        res.status(200).send("University update successful");
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
