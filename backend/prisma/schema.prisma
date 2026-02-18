@@ -17,6 +17,7 @@ model User {
   createdAt  DateTime    @default(now())
   sessions   Session[]
   university University?
+  student    Student?
 }
 
 model Session {
@@ -44,9 +45,8 @@ model University {
   blockchainId          String?
   createdAt             DateTime               @default(now())
   userId                String                 @unique
-  credentials           Credential[]
-  students              Student[]
   user                  User                   @relation(fields: [userId], references: [id])
+  credentials           Credential[]
   UniversityInvitations UniversityInvitation[]
   revocation            UniversityRevocation?
   verificationJobs      VerificationJob[]
@@ -74,42 +74,32 @@ model UniversityRevocation {
 }
 
 model Student {
-  id               String       @id @default(uuid())
+  id               String      @id @default(uuid())
   fullName         String
-  pseudonymousId   String
-  hiddenIdentifier String
-  createdAt        DateTime     @default(now())
-
-  universityId     String
-  university       University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
-
+  pseudonymousId   String      @unique
+  hiddenIdentifier String      @unique
+  createdAt        DateTime    @default(now())
+  userId           String?     @unique
+  user             User?       @relation(fields: [userId], references: [id])
   credentials      Credential[]
-
-  @@unique([pseudonymousId, universityId])
-  @@unique([hiddenIdentifier, universityId])
-  @@index([universityId])
 }
 
-
 model Credential {
-  id               String                @id @default(uuid())
-  canonicalHash    String
-  degreeName       String
-  program          String?
-  awardedDate      DateTime
-  createdAt        DateTime              @default(now())
+  id            String                @id @default(uuid())
+  canonicalHash String
+  degreeName    String
+  program       String?
+  awardedDate   DateTime
+  createdAt     DateTime              @default(now())
+  studentId     String
+  universityId  String
+  student       Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university    University            @relation(fields: [universityId], references: [id])
+  revocation    CredentialRevocation?
 
-  studentId        String
-  universityId     String
-
-  student          Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  university       University            @relation(fields: [universityId], references: [id])
-
-  revocation       CredentialRevocation?
-
+  @@unique([canonicalHash, universityId])
   @@index([studentId])
   @@index([universityId])
-  @@unique([canonicalHash, universityId])
 }
 
 model CredentialRevocation {
@@ -158,6 +148,7 @@ model AuditLog {
 enum UserRole {
   UNIVERSITY
   ADMIN
+  STUDENT
 }
 
 enum VerificationStatus {
