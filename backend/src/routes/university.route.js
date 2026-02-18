@@ -7,10 +7,10 @@ import { createCredential, bulkCreateCredentials, revokeCredential, updateCreden
 
 const router = express.Router();
 
-router.post('/invitations/accept', acceptInvite);
+router.post('/invite/accept', acceptInvite);
 router.post('/credentials', authMiddleware, universityMiddleware, createCredential);
-router.post('/credentials/bulk', authMiddleware, universityMiddleware, bulkCreateCredentials);
-router.post('/credentials/revoke', authMiddleware, universityMiddleware, revokeCredential);
-router.put('/credentials/:id', authMiddleware, universityMiddleware, updateCredential);
+router.post('/bulk', authMiddleware, universityMiddleware, bulkCreateCredentials);
+router.post('/revoke', authMiddleware, universityMiddleware, revokeCredential);
+router.put('/:id', authMiddleware, universityMiddleware, updateCredential);
 
 export default router;
