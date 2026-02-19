@@ -21,10 +21,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/api/helloworld', (req, res) => res.send('Hello World!'));
 
 app.use('/api/auth', authRoutes);
-app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/students', studentRoutes);
 app.use('/api/universities', UniversityRoutes);
-app.use('/api/credentials', credentialRoutes);
+app.use('/api/universities/credentials', credentialRoutes);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,26 +1,19 @@
 import studentService from '../services/student.service.js';
 
-
-export const addStudent = async (req, res) => {
-  try {
-    res.status(200).send("Student added successfully");
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
 export const getStudent = async (req, res) => {
   try {
-    res.status(200).send("Student retrieval successful");
+    const student = await studentService.getStudent(req.user.id);
+    res.json(student);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 };
 
-export const revokeStudent = async (req, res) => {
+export const getStudentCredential = async (req, res) => {
   try {
-    res.status(200).send("Student revoking successful");
+    const studentCredential = await studentService.getStudentCredential(req.user.id);
+    res.json(studentCredential);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 };

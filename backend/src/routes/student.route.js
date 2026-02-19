@@ -1,11 +1,11 @@
 import express from 'express';
-import { addStudent, getStudent, revokeStudent } from '../controllers/student.controller.js';
+import {getStudent, getStudentCredential } from '../controllers/student.controller.js';
 import authMiddleware from '../middleware/auth.middleware.js';
+import studentMiddleware from '../middleware/student.middleware.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, addStudent);
-router.get('/:id', authMiddleware, getStudent);
-router.put('/:id', authMiddleware, revokeStudent);
+router.get('/me', authMiddleware, studentMiddleware, getStudent);
+router.get('/me/credentials', authMiddleware, studentMiddleware, getStudentCredential);
 
 export default router;
