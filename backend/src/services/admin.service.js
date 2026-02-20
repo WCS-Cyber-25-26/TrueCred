@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import prisma from '../../prisma/client.js';
 import { generateInviteToken, hashInviteToken } from '../utils/token.js';
 
@@ -5,7 +6,28 @@ const INVITE_EXPIRY_HOURS = 24;
 
 const adminService = {
     async getAllUniversities() {
+        return await prisma.university.findMany({
+            select: {
+              id: true,
+              name: true,
+              domain: true,
+              domainVerified: true,
+              chainEnabled: true,
+              createdAt: true,
+              userId: true,
 
+              revocation: {
+                select: {
+                  revokedAt: true,
+                  reason: true,
+                  revokedBy: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          });
     },
     async revokeUniversity() {
 
@@ -33,6 +55,7 @@ const adminService = {
 
         const user = await prisma.user.create({
             data: {
+                id: crypto.randomUUID(),
                 email,
                 password: '',
                 role: 'UNIVERSITY',
@@ -41,6 +64,7 @@ const adminService = {
 
         const university = await prisma.university.create({
             data: {
+                id: crypto.randomUUID(),
                 name,
                 domain,
                 userId: user.id,
@@ -73,6 +97,9 @@ const adminService = {
             message: 'University invitation sent',
         };
     },
+    async updateUniversity() {
+        
+    }
 }
 
 export default adminService;
