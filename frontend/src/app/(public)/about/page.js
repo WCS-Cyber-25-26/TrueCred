@@ -1,3 +1,3 @@
-export default function Page() {
-  return <div></div>
-}
+import AboutPage from "../../components/AboutPage"
+
+export default AboutPage

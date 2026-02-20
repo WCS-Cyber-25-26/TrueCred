@@ -1,3 +1,4 @@
-export default function Page() {
-  return <div></div>
-}
+import LoginPage from "../../components/LoginPage"
+
+export default LoginPage
+
