@@ -1,5 +1,14 @@
 import studentService from '../services/student.service.js';
 
+export const getStudents = async (req, res) => {
+  try {
+    const students = await studentService.getStudents(req.user.id, req.query);
+    res.status(200).json(students);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 export const getStudent = async (req, res) => {
   try {
     const student = await studentService.getStudent(req.user.id);
