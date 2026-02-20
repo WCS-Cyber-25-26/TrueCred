@@ -1,7 +1,7 @@
 import prisma from '../../prisma/client.js';
 
 const studentService = {
-    async getStudent(authUniversityID, query = {}) {
+    async getStudents(authUniversityID, query = {}) {
 
         const user = await prisma.university.findUnique({
             where: { userId: authUniversityID },

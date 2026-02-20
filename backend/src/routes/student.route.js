@@ -1,5 +1,5 @@
 import express from 'express';
-import {getStudent, getStudentCredential } from '../controllers/student.controller.js';
+import {getStudent, getStudents, getStudentCredential } from '../controllers/student.controller.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 import studentMiddleware from '../middleware/student.middleware.js';
 
