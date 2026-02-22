@@ -2,9 +2,18 @@ import prisma from '../../prisma/client.js';
 
 const credentialService = {
   async getCredentialsByStudent(studentId, userId) {
-    // Retrieving universityId from userId
-    const user = await prisma.university.findUnique({where: { userId: userId }, select: { id: true }});
+    // 1. Validation logic
+    if (!userId) {
+      throw new Error("University identity not found in token.");
+    }
 
+    // Retrieving universityId from userId
+    const user = await prisma.university.findUnique({
+        where: { userId: userId },
+        select: { id: true }
+        });
+
+    // Validation logic
     if (!user) {
       throw new Error("University not found for the given user ID.");
     }
