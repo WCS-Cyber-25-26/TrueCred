@@ -1,9 +1,28 @@
 import prisma from '../../prisma/client.js';
 
 const universityService = {
-    async getUniversity() {
+    async getUniversity(universityId) {
+        const university = await prisma.university.findUnique({
+            where: { userId: universityId },
+            select: {
+                id: true,
+                name: true,
+                domain: true,
+                domainVerified: true,
+                chainEnabled: true,
+                createdAt: true,
+            }
+        });
 
+        if (!university) {
+            const err = new Error("University not found for the given user ID.");
+            err.status = 404;
+            throw err;
+        }
+
+        return university;
     },
+
     async getUniversityStudents(authUniversityID, query = {}) {
 
         const user = await prisma.university.findUnique({

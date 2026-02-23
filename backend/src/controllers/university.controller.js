@@ -2,7 +2,8 @@ import universityService from '../services/university.service.js';
 
 export const getUniversity = async (req, res) => {
     try {
-        res.status(200).send("University details retrieved successfully");
+        const university = await universityService.getUniversity(req.user.id);
+        res.status(200).json(university);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
