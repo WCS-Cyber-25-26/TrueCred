@@ -1,41 +1,47 @@
 import universityService from '../services/university.service.js';
 
-export const createCredential = async (req, res) => {
+export const getUniversity = async (req, res) => {
     try {
-        res.status(200).send("Credential created successfully");
+        res.status(200).send("University details retrieved successfully");
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
-export const bulkCreateCredentials = async (req, res) => {
+export const getUniversityStudents = async (req, res) => {
     try {
-        res.status(200).send("Bulk credential creation successful");
+        const students = await universityService.getUniversityStudents(req.user.id, req.query);
+        res.status(200).json(students);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+export const getUniversityCredentials = async (req, res) => {
+    try {
+        res.status(200).send("All university credentials retrieved successfully");
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
-// export const getAllStudents = async (req, res) => {
-//     try {
-//         res.status(200).send("Student retrieval successful");
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// };
-
-export const revokeCredential = async (req, res) => {
+export const getStudentbyStudentId = async (req, res) => {
     try {
-        res.status(200).send("Credential revoking successful");
+        res.status(200).send("Student details retrieved successfully");
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
-export const updateCredential = async (req, res) => {
+export const getCredentialsbyStudentId = async (req, res) => {
     try {
-        res.status(200).send("Credential update successful");
+        const { studentId } = req.params;
+        const userId = req.user?.id;
+
+        const result = await universityService.getCredentialsbyStudentId(studentId, userId);
+
+        return res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 };

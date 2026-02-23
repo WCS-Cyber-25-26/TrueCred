@@ -5,34 +5,7 @@ import { generateInviteToken, hashInviteToken } from '../utils/token.js';
 const INVITE_EXPIRY_HOURS = 24;
 
 const adminService = {
-    async getAllUniversities() {
-        return await prisma.university.findMany({
-            select: {
-              id: true,
-              name: true,
-              domain: true,
-              domainVerified: true,
-              chainEnabled: true,
-              createdAt: true,
-              userId: true,
-
-              revocation: {
-                select: {
-                  revokedAt: true,
-                  reason: true,
-                  revokedBy: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: 'desc',
-            },
-          });
-    },
-    async revokeUniversity() {
-
-    },
-    async sendInvite({ name, domain, email, createdBy }) {
+        async sendInvite({ name, domain, email, createdBy }) {
         if (!email.endsWith(`@${domain}`)) {
             throw new Error('Email must match university domain');
         }
@@ -97,8 +70,38 @@ const adminService = {
             message: 'University invitation sent',
         };
     },
+        async revokeUniversity() {
+
+    },
     async updateUniversity() {
         
+    },
+    async getAllUniversities() {
+        return await prisma.university.findMany({
+            select: {
+              id: true,
+              name: true,
+              domain: true,
+              domainVerified: true,
+              chainEnabled: true,
+              createdAt: true,
+              userId: true,
+
+              revocation: {
+                select: {
+                  revokedAt: true,
+                  reason: true,
+                  revokedBy: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          });
+    },
+    async getUniversityById() { 
+          
     }
 }
 
