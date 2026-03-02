@@ -197,8 +197,49 @@ const universityService = {
     async getUniversityCredentials() {
 
     },
-    async getStudentbyStudentId() {
+    async getStudentbyStudentId(studentId, userId) {
+        // Validate required inputs to prevent malformed database queries
+        if (!userId) {
+            throw new Error("User identity not found in token.");
+          }
+          if (!studentId) {
+            throw new Error("Student ID is required.");
+          }
 
+          // Retrieve the university associated with the authenticated user
+          const university = await prisma.university.findUnique({
+            where: { userId: userId },
+            select: { id: true }
+          });
+
+          if (!university) {
+            throw new Error("University not found for the given user ID.");
+          }
+
+          // Retrieve the student by studentId and ensure they have credentials from the authenticated university
+          const student = await prisma.student.findFirst({
+            where: {
+              id: studentId,
+              credentials: {
+                some: {
+                  universityId: university.id,
+                },
+              },
+            },
+            select: {
+                id: true,
+                fullName: true,
+                pseudonymousId: true,
+                hiddenIdentifier: true,
+                createdAt: true,
+              },
+            });
+
+            if (!student) {
+                throw new Error("Student not found or does not belong to the authenticated university.");
+              }
+          
+              return student;
     },
     async getCredentialsbyStudentId(studentId, userId) {
         // 1. Validation logic
