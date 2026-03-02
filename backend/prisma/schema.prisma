@@ -1,15 +1,159 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider  = "prisma-client-js"
+  output    = "../src/generated/prisma"
+  transpile = "true"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  role       UserRole
+  createdAt  DateTime    @default(now())
+  sessions   Session[]
+  university University?
+  student    Student?
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model University {
+  id                    String                 @id @default(uuid())
+  name                  String
+  domain                String                 @unique
+  domainVerified        Boolean                @default(false)
+  verifiedAt            DateTime?
+  verifiedByUserId      String?
+  verificationNote      String?
+  chainEnabled          Boolean                @default(false)
+  blockchainId          String?
+  createdAt             DateTime               @default(now())
+  userId                String                 @unique
+  user                  User                   @relation(fields: [userId], references: [id])
+  credentials           Credential[]
+  UniversityInvitations UniversityInvitation[]
+  revocation            UniversityRevocation?
+  verificationJobs      VerificationJob[]
+}
+
+model UniversityInvitation {
+  id           String     @id @default(uuid())
+  universityId String
+  email        String
+  token        String     @unique
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  createdAt    DateTime   @default(now())
+  createdBy    String
+  university   University @relation(fields: [universityId], references: [id])
+}
+
+model UniversityRevocation {
+  id           String     @id @default(uuid())
+  universityId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  university   University @relation(fields: [universityId], references: [id])
+}
+
+model Student {
+  id               String      @id @default(uuid())
+  fullName         String
+  pseudonymousId   String      @unique
+  hiddenIdentifier String      @unique
+  createdAt        DateTime    @default(now())
+  userId           String?     @unique
+  user             User?       @relation(fields: [userId], references: [id])
+  credentials      Credential[]
+}
+
+model Credential {
+  id            String                @id @default(uuid())
+  canonicalHash String
+  degreeName    String
+  program       String?
+  awardedDate   DateTime
+  createdAt     DateTime              @default(now())
+  studentId     String
+  universityId  String
+  student       Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university    University            @relation(fields: [universityId], references: [id])
+  revocation    CredentialRevocation?
+
+  @@unique([canonicalHash, universityId])
+  @@index([studentId])
+  @@index([universityId])
+}
+
+model CredentialRevocation {
+  id           String     @id @default(uuid())
+  credentialId String     @unique
+  revokedAt    DateTime   @default(now())
+  reason       String?
+  revokedBy    String?
+  credential   Credential @relation(fields: [credentialId], references: [id])
+}
+
+model VerificationJob {
+  id           String              @id @default(uuid())
+  status       VerificationStatus  @default(PENDING)
+  createdAt    DateTime            @default(now())
+  completedAt  DateTime?
+  ipAddress    String?
+  geoLocation  String?
+  userAgent    String?
+  universityId String?
+  university   University?         @relation(fields: [universityId], references: [id])
+  result       VerificationResult?
+
+  @@index([universityId])
+  @@index([status])
+}
+
+model VerificationResult {
+  id              String          @id @default(uuid())
+  ocrStatus       String
+  aiScore         Float?
+  blockchainMatch Boolean?
+  verdict         String
+  jobId           String          @unique
+  job             VerificationJob @relation(fields: [jobId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  UNIVERSITY
+  ADMIN
+  STUDENT
+}
+
+enum VerificationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }

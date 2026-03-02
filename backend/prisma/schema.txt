@@ -1,0 +1,74 @@
+model User {
+  id         String      @id @default(uuid())   //Unique identifier for the user
+  email      String      @unique                //Unique identifier used by user (Login)
+  password   String                             //Encrypted password (bcrypt recommended)      
+  role       UserRole                           //User role - admin or university
+  createdAt  DateTime    @default(now())        
+  university University?                        //Link to University if the user is a university admin
+}
+
+model University {
+  id               String            @id @default(uuid())
+  name             String                                   //University name
+  domain           String            @unique                //Domain for email verification
+  domainVerified   Boolean           @default(false)        //Boolean verification
+  chainEnabled     Boolean           @default(false)        //blockchain integration?
+  blockchainId     String?                                  
+  createdAt        DateTime          @default(now())
+  userId           String            @unique
+  credentials      Credential[]
+  user             User              @relation(fields: [userId], references: [id])
+  verificationJobs VerificationJob[]
+}
+
+model Credential {
+  id            String     @id @default(uuid())
+  canonicalHash String     @unique              //Hash representing the credential
+  createdAt     DateTime   @default(now())
+  universityId  String                          //Connects credential to the issuing university
+  university    University @relation(fields: [universityId], references: [id])
+}
+
+model VerificationJob {
+  id           String              @id @default(uuid())
+  status       VerificationStatus  @default(PENDING)
+  createdAt    DateTime            @default(now())
+  completedAt  DateTime?
+  ipAddress    String?                                  //IP of requester
+  geoLocation  String?                                  //location
+  userAgent    String?                                  //browser/device info
+  universityId String?
+  university   University?         @relation(fields: [universityId], references: [id])
+  result       VerificationResult?
+}
+
+model VerificationResult {
+  id              String          @id @default(uuid())
+  ocrStatus       String                                //Result of OCR processing
+  aiScore         Float?                                //Score from AI verification
+  blockchainMatch Boolean?                              //Whether it matches on-chain hash
+  verdict         String                                //Final decision - approved or rejected
+  heatmapUrl      String?
+  jobId           String          @unique
+  job             VerificationJob @relation(fields: [jobId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  actorId   String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  UNIVERSITY
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

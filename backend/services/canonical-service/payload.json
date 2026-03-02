@@ -1,0 +1,37 @@
+[
+  {
+    "university": "Western University",
+    "studentName": "Alice Johnson",
+    "degree": "Bachelor of Science",
+    "degreeAwardedDate": "2024-06-12",
+    "hiddenIdentifier": "X9F2K-8821"
+  },
+  {
+    "university": "University of Toronto",
+    "studentName": "Mohammed Ali",
+    "degree": "Master of Engineering",
+    "degreeAwardedDate": "2023-11-01",
+    "hiddenIdentifier": "UTM-ENG-99341"
+  },
+  {
+    "university": "McGill University",
+    "studentName": "Élodie Tremblay",
+    "degree": "Bachelor of Arts",
+    "degreeAwardedDate": "2022-05-30",
+    "hiddenIdentifier": "MGILL-BA-55219"
+  },
+  {
+    "university": "University of British Columbia",
+    "studentName": "Chen Wei",
+    "degree": "Doctor of Philosophy",
+    "degreeAwardedDate": "2021-09-15",
+    "hiddenIdentifier": "UBC-PHD-77102"
+  },
+  {
+    "university": "University of Waterloo",
+    "studentName": "Daniel O'Connor",
+    "degree": "Bachelor of Applied Science",
+    "degreeAwardedDate": "2020-04-22",
+    "hiddenIdentifier": "UW-BAS-44008"
+  }
+]
