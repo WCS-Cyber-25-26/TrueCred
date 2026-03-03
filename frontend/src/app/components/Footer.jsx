@@ -85,11 +85,6 @@ export default function Footer() {
                   Blog
                 </a>
               </li>
-              <li>
-                <a href="#press" className="text-gray-400 hover:text-white transition-colors">
-                  Press Kit
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -99,7 +94,7 @@ export default function Footer() {
             <ul className="space-y-2">
               <li className="text-gray-400">partnerships@truecred.com</li>
               <li className="text-gray-400">1-800-TRUE-CRD</li>
-              <li className="text-gray-400">San Francisco, CA</li>
+              <li className="text-gray-400">London, ON</li>
             </ul>
             {/* Social Media */}
             <div className="flex gap-4 mt-6">

@@ -1,25 +1,136 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from "react";
-import { Search, Filter, Users, MoreVertical, ExternalLink } from "lucide-react";
+import { useState, useMemo, useEffect, Fragment } from "react";
+import { Search, Filter, Users, MoreVertical, ChevronDown, ChevronUp, FileText, CheckCircle } from "lucide-react";
 
 const MOCK_STUDENTS = [
-  { id: "109283745", name: "Alexander Thompson", program: "Computer Science",        graduationYear: "2024" },
-  { id: "293847561", name: "Sarah Jenkins",      program: "Mechanical Engineering",  graduationYear: "2023" },
-  { id: "384756293", name: "Marcus Rodriguez",   program: "Business Administration", graduationYear: "2025" },
-  { id: "475629384", name: "Elena Petrova",      program: "Computer Science",        graduationYear: "2024" },
-  { id: "562938475", name: "Julian Chen",        program: "Electrical Engineering",  graduationYear: "2022" },
-  { id: "629384756", name: "Olivia Wright",      program: "Architecture",            graduationYear: "2024" },
-  { id: "738475629", name: "David Kim",          program: "Data Science",            graduationYear: "2025" },
-  { id: "847562938", name: "Sophia Martinez",    program: "Cybersecurity",           graduationYear: "2023" },
-  { id: "956293847", name: "Lucas Brown",        program: "Philosophy",              graduationYear: "2024" },
-  { id: "102938475", name: "Emma Wilson",        program: "Mechanical Engineering",  graduationYear: "2024" },
+  { 
+    id: "109283745", 
+    name: "Alexander Thompson", 
+    program: "Computer Science", 
+    graduationYear: "2024",
+    email: "athompson@western.edu",
+    enrollmentDate: "2020-09-01",
+    credentials: [
+      { id: "CR001", type: "Bachelor's Degree", issuedDate: "2024-05-15", status: "Verified" },
+      { id: "CR002", type: "Academic Transcript", issuedDate: "2024-05-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "293847561", 
+    name: "Sarah Jenkins", 
+    program: "Mechanical Engineering", 
+    graduationYear: "2023",
+    email: "sjenkins@western.edu",
+    enrollmentDate: "2019-09-01",
+    credentials: [
+      { id: "CR003", type: "Bachelor's Degree", issuedDate: "2023-05-20", status: "Verified" },
+      { id: "CR004", type: "Academic Transcript", issuedDate: "2023-05-20", status: "Verified" },
+      { id: "CR005", type: "Engineering Certificate", issuedDate: "2023-04-10", status: "Verified" }
+    ]
+  },
+  { 
+    id: "384756293", 
+    name: "Marcus Rodriguez", 
+    program: "Business Administration", 
+    graduationYear: "2025",
+    email: "mrodriguez@western.edu",
+    enrollmentDate: "2021-09-01",
+    credentials: [
+      { id: "CR006", type: "Academic Transcript", issuedDate: "2024-12-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "475629384", 
+    name: "Elena Petrova", 
+    program: "Computer Science", 
+    graduationYear: "2024",
+    email: "epetrova@western.edu",
+    enrollmentDate: "2020-09-01",
+    credentials: [
+      { id: "CR007", type: "Bachelor's Degree", issuedDate: "2024-05-15", status: "Verified" },
+      { id: "CR008", type: "Academic Transcript", issuedDate: "2024-05-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "562938475", 
+    name: "Julian Chen", 
+    program: "Electrical Engineering", 
+    graduationYear: "2022",
+    email: "jchen@western.edu",
+    enrollmentDate: "2018-09-01",
+    credentials: [
+      { id: "CR009", type: "Bachelor's Degree", issuedDate: "2022-05-18", status: "Verified" },
+      { id: "CR010", type: "Academic Transcript", issuedDate: "2022-05-18", status: "Verified" }
+    ]
+  },
+  { 
+    id: "629384756", 
+    name: "Olivia Wright", 
+    program: "Architecture", 
+    graduationYear: "2024",
+    email: "owright@western.edu",
+    enrollmentDate: "2020-09-01",
+    credentials: [
+      { id: "CR011", type: "Bachelor's Degree", issuedDate: "2024-05-15", status: "Verified" },
+      { id: "CR012", type: "Academic Transcript", issuedDate: "2024-05-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "738475629", 
+    name: "David Kim", 
+    program: "Data Science", 
+    graduationYear: "2025",
+    email: "dkim@western.edu",
+    enrollmentDate: "2021-09-01",
+    credentials: [
+      { id: "CR013", type: "Academic Transcript", issuedDate: "2024-12-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "847562938", 
+    name: "Sophia Martinez", 
+    program: "Cybersecurity", 
+    graduationYear: "2023",
+    email: "smartinez@western.edu",
+    enrollmentDate: "2019-09-01",
+    credentials: [
+      { id: "CR014", type: "Bachelor's Degree", issuedDate: "2023-05-20", status: "Verified" },
+      { id: "CR015", type: "Academic Transcript", issuedDate: "2023-05-20", status: "Verified" },
+      { id: "CR016", type: "Cybersecurity Certificate", issuedDate: "2023-03-12", status: "Verified" }
+    ]
+  },
+  { 
+    id: "956293847", 
+    name: "Lucas Brown", 
+    program: "Philosophy", 
+    graduationYear: "2024",
+    email: "lbrown@western.edu",
+    enrollmentDate: "2020-09-01",
+    credentials: [
+      { id: "CR017", type: "Bachelor's Degree", issuedDate: "2024-05-15", status: "Verified" },
+      { id: "CR018", type: "Academic Transcript", issuedDate: "2024-05-15", status: "Verified" }
+    ]
+  },
+  { 
+    id: "102938475", 
+    name: "Emma Wilson", 
+    program: "Mechanical Engineering", 
+    graduationYear: "2024",
+    email: "ewilson@western.edu",
+    enrollmentDate: "2020-09-01",
+    credentials: [
+      { id: "CR019", type: "Bachelor's Degree", issuedDate: "2024-05-15", status: "Verified" },
+      { id: "CR020", type: "Academic Transcript", issuedDate: "2024-05-15", status: "Verified" }
+    ]
+  },
 ];
 
 export default function UniversityDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [programFilter, setProgramFilter] = useState("All Programs");
   const [yearFilter, setYearFilter] = useState("All Years");
+  const [expandedStudentId, setExpandedStudentId] = useState(null);
 
   const programs = useMemo(() => {
     return ["All Programs", ...Array.from(new Set(MOCK_STUDENTS.map(s => s.program)))];
@@ -109,35 +220,71 @@ export default function UniversityDashboard() {
               <tbody className="divide-y divide-gray-200">
                 {filteredStudents.length > 0 ? (
                   filteredStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-blue-50/50 transition-colors group">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-[#043682] rounded-full flex items-center justify-center text-white font-black text-lg shadow-sm">
-                            {student.name.charAt(0)}
+                    <Fragment key={student.id}>
+                      <tr 
+                        onClick={() => setExpandedStudentId(expandedStudentId === student.id ? null : student.id)}
+                        className="hover:bg-blue-50/50 transition-colors group cursor-pointer"
+                      >
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-[#043682] rounded-full flex items-center justify-center text-white font-black text-lg shadow-sm">
+                              {student.name.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-black text-gray-900 text-lg leading-tight">{student.name}</p>
+                              <p className="text-sm text-gray-600 font-bold mt-0.5">ID: {student.id}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-black text-gray-900 text-lg leading-tight">{student.name}</p>
-                            <p className="text-sm text-gray-600 font-bold mt-0.5">ID: {student.id}</p>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-gray-900 font-black">{student.program}</span>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-gray-900 font-black">{student.graduationYear}</span>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex items-center justify-end gap-3">
+                            {expandedStudentId === student.id ? (
+                              <ChevronUp className="w-5 h-5 text-[#043682]" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-gray-500" />
+                            )}
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-gray-900 font-black">{student.program}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-gray-900 font-black">{student.graduationYear}</span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <div className="flex items-center justify-end gap-3">
-                          <button className="p-2.5 bg-gray-100 text-[#043682] rounded-xl hover:bg-[#043682] hover:text-white transition-all shadow-sm">
-                            <ExternalLink className="w-5 h-5" />
-                          </button>
-                          <button className="p-2.5 text-gray-500 hover:text-gray-900 transition-colors">
-                            <MoreVertical className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                      {expandedStudentId === student.id && (
+                        <tr key={`${student.id}-details`}>
+                          <td colSpan={4} className="px-8 py-6 bg-blue-50/30">
+                            {/* Credentials - Full Width */}
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                              <h3 className="text-lg font-black text-[#043682] mb-4 flex items-center gap-2">
+                                <FileText className="w-5 h-5" />
+                                Credentials ({student.credentials.length})
+                              </h3>
+                              <div className="space-y-3">
+                                {student.credentials.map((credential) => (
+                                  <div 
+                                    key={credential.id}
+                                    className="flex items-start justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                                  >
+                                    <div className="flex-1">
+                                      <p className="font-black text-gray-900">{credential.type}</p>
+                                      <p className="text-sm text-gray-600 font-bold mt-1">
+                                        Issued: {new Date(credential.issuedDate).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-4">
+                                      <CheckCircle className="w-5 h-5 text-[#22c55e]" />
+                                      <span className="text-sm font-bold text-[#22c55e]">{credential.status}</span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   ))
                 ) : (
                   <tr>

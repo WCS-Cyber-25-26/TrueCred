@@ -42,7 +42,7 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <p className="text-blue-200 text-sm font-semibold uppercase tracking-wider">Visit Us</p>
-                  <p className="text-xl font-medium">San Francisco, CA</p>
+                  <p className="text-xl font-medium">London, ON</p>
                 </div>
               </div>
             </div>

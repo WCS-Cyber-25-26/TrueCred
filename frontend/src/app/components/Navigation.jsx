@@ -1,16 +1,17 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
-const logoImg = "/logo.png"; // Place logo.png in your public folder
+const logoImg = "/logo.png";
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isHidden, setIsHidden] = useState(false); 
+  const [isHidden, setIsHidden] = useState(false);
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const lastScrollY = useRef(0);
@@ -43,65 +44,63 @@ export default function Navigation() {
       }}
       animate={isHidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
-        isScrolled ? "bg-[#043682]/95 backdrop-blur-md shadow-lg" : "bg-[#043682]"
+      className={`fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${
+        isScrolled ? "shadow-lg" : ""
       }`}
     >
-      <div className="max-w-[1440px] mx-auto px-12 py-5 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-4" onClick={(e) => scrollToSection(e, "home")}>
-          <div className="w-14 h-14">
+      <div className="max-w-[1440px] mx-auto flex items-stretch">
+        {/* Logo Section - White Background with Diagonal Cut */}
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-4 bg-white pl-8 pr-16 py-0 relative"
+          onClick={(e) => scrollToSection(e, "home")}
+          style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%)' }}
+        >
+          <div className="w-69 h-23">
             <ImageWithFallback
               src={logoImg}
               alt="TrueCred Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="bg-white px-6 py-3 rounded">
-            <span className="font-bold text-2xl tracking-tight">
-              <span className="text-black">True</span>
-              <span className="text-[#043682]">Cred</span>
-            </span>
-          </div>
         </Link>
 
-        {/* Navigation Links */}
-        <div className="flex items-center gap-10">
-          <Link
-            href="/verify"
-            className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-          >
-            Verify
-          </Link>
-          <Link
-            href="/about"
-            className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-          >
-            About Us
-          </Link>
-          <Link
-            href="/#contact"
-            onClick={(e) => scrollToSection(e, "contact")}
-            className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-          >
-            Contact
-          </Link>
-          <Link
-            href="/UniversityDashboard"
-            className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-          >
-            Dashboard
-          </Link>
-        </div>
+        {/* Navigation Links - Blue Background */}
+        <div className="flex-1 bg-[#043682] flex items-center px-12 py-3 -ml-10">
+          {/* Left Spacer to balance Login button */}
+          <div className="w-[100px]"></div>
+          
+          {/* Centered Navigation Buttons */}
+          <nav className="flex-1 flex items-center justify-center gap-15">
+            <Link
+              href="/about"
+              className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
+            >
+              About Us
+            </Link>
+            <Link
+              href="/verify"
+              className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
+            >
+              Verify
+            </Link>
+            <Link
+              href="/UniversityDashboard"
+              className="text-white px-6 py-2.5 border border-white/30 rounded-full transition-all hover:bg-white/10 hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
+            >
+              Dashboard
+            </Link>
+          </nav>
 
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-4">
-          <Link 
-            href="/login"
-            className="bg-white text-[#043682] px-8 py-2.5 border border-white rounded font-bold transition-all hover:bg-transparent hover:text-white hover:border-[#22c55e] hover:shadow-[0_0_15px_rgba(34,197,94,0.4)]"
-          >
-            Login
-          </Link>
+          {/* Auth Buttons */}
+          <div className="flex items-center w-[280px] justify-end">
+            <Link
+              href="/login"
+              className="bg-white text-[#043682] px-8 py-2.5 rounded font-bold transition-all hover:bg-[#22c55e] hover:text-white"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </div>
     </motion.nav>

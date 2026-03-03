@@ -11,7 +11,7 @@ export default function RootLayout({children}) {
   
   return (
     <html lang="en">
-      <body className="bg-white text-black">
+      <body className="bg-black text-black">
         <Navigation />
         <ScrollToHash />  
         <main className="pt-16">{children}</main>
