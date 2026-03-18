@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import prisma from '../../prisma/client.js';
 import { generateInviteToken, hashInviteToken} from '../utils/token.js';
+import { generateWallet, registerUniversityOnChain, fundWallet } from '../utils/blockchain.js';
+import { storePrivateKey } from '../utils/vault.js';
 
 const INVITE_EXPIRY_HOURS = 24;
 
@@ -37,6 +39,15 @@ const universityInviteService = {
         data: { acceptedAt: new Date() },
       }),
     ]);
+
+    const { address, privateKey } = generateWallet();
+    await storePrivateKey(invite.universityId, privateKey);
+    await registerUniversityOnChain(address, invite.universityId, invite.university.name);
+    await fundWallet(address);
+    await prisma.university.update({
+      where: { id: invite.universityId },
+      data: { blockchainId: address, chainEnabled: true },
+    });
 
     return { message: 'University account activated successfully' };
   },

@@ -5,11 +5,11 @@ import universityMiddleware from '../middleware/university.middleware.js';
 
 const router = express.Router();
 
-router.post('/universities/credentials', authMiddleware, universityMiddleware, issueCredential);
-router.post('/universities/credentials/bulk', authMiddleware, universityMiddleware, issueBulkCredentials);
-router.patch('/universities/credentials/:id', authMiddleware, universityMiddleware, updateCredential);
-router.post('/universities/credentials/:id/revoke', authMiddleware, universityMiddleware, revokeCredentialById);
-router.get('/universities/credentials/:credentialId', authMiddleware, universityMiddleware, getCredentialById);
-router.get('/universities/credentials/:credentialId/revocation-status', authMiddleware, universityMiddleware, getCredentialRevocationStatus);
+router.post('/', authMiddleware, universityMiddleware, issueCredential);
+router.post('/bulk', authMiddleware, universityMiddleware, issueBulkCredentials);
+router.patch('/:id', authMiddleware, universityMiddleware, updateCredential);
+router.post('/:id/revoke', authMiddleware, universityMiddleware, revokeCredentialById);
+router.get('/:credentialId', authMiddleware, universityMiddleware, getCredentialById);
+router.get('/:credentialId/revocation-status', authMiddleware, universityMiddleware, getCredentialRevocationStatus);
 
 export default router;

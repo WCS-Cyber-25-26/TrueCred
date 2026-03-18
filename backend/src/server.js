@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import { checkVaultHealth } from './utils/vault.js';
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger-ui/swagger.js";
 import authRoutes from './routes/auth.route.js';
@@ -27,4 +28,9 @@ app.use('/api/universities', UniversityRoutes);
 app.use('/api/universities/credentials', credentialRoutes);
 
 const PORT = process.env.PORT || 8080;
+
+checkVaultHealth()
+  .then(() => console.log('Vault connected'))
+  .catch(() => console.warn('WARNING: Vault is not reachable. Credential issuance will fail.'));
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
