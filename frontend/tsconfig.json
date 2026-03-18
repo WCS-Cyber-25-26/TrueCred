@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts",
+    "**/*.ts",
+    "**/*.tsx"
+, "src/app/components/ui/utils.jsx", "src/app/components/ui/use-mobile.jsx", "src/app/components/ui/tooltip.jsx", "src/app/components/ui/toggle.jsx", "src/app/components/ui/toggle-group.jsx", "src/app/components/ui/textarea.jsx", "src/app/components/ui/tabs.jsx", "src/app/components/ui/table.jsx", "src/app/components/ui/switch.jsx", "src/app/components/ui/sonner.jsx", "src/app/components/ui/slider.jsx", "src/app/components/ui/skeleton.jsx", "src/app/components/ui/sidebar.jsx", "src/app/components/ui/sheet.jsx", "src/app/components/ui/separator.jsx", "src/app/components/ui/select.jsx", "src/app/components/ui/scroll-area.jsx", "src/app/components/ui/resizable.jsx", "src/app/components/ui/radio-group.ksx", "src/app/components/ui/progress.jsx", "src/app/components/ui/popover.jsx", "src/app/components/ui/pagination.jsx", "src/app/components/ui/navigation-menu.jsx", "src/app/components/ui/menubar.jsx", "src/app/components/ui/label.jsx", "src/app/components/ui/input.jsx", "src/app/components/ui/input-otp.jsx", "src/app/components/ui/hover-card.jsx", "src/app/components/ui/form.jsx", "src/app/components/ui/dropdown-menu.jsx", "src/app/components/ui/drawer.jsx", "src/app/components/ui/dialog.jsx", "src/app/components/ui/context-menu.jsx", "src/app/components/ui/command.jsx", "src/app/components/ui/collapsible.jsx", "src/app/components/ui/checkbox.jsx", "src/app/components/ui/chart.jsx", "src/app/components/ui/carousel.jsx", "src/app/components/ui/card.jsx", "src/app/components/ui/calendar.jsx", "src/app/components/ui/button.jsx", "src/app/components/ui/breadcrumb.jsx", "src/app/components/ui/badge.jsx", "src/app/components/ui/avatar.jsx", "src/app/components/ui/aspect-ratio.jsx", "src/app/components/ui/alert.jsx", "src/app/components/ui/alert-dialog.jsx", "src/app/components/ui/accordion.jsx", "src/app/components/Footer.jsx", "src/app/components/Hero.jsx", "src/app/components/HomePage.jsx", "src/app/components/LoginPage.jsx", "src/app/components/Navigation.jsx", "src/app/components/ScrollToHash.jsx", "src/app/components/TrustIndicators.jsx", "src/app/components/UniversityDashboard.jsx", "src/app/components/VerifyPage.jsx", "src/app/components/ContactSection.jsx", "src/app/components/Benefits.jsx", "src/app/components/AboutPage.jsx", "src/app/components/figma/ImageWithFallback.jsx", "src/app/imports/VerifyPage.jsx", "src/app/imports/VerifyPage-7-194.jsx", "src/app/imports/UniversityDashboard.jsx", "src/app/imports/svg-gio5ma62h4.jsx", "src/app/imports/svg-dak7c58xvq.jsx", "src/app/imports/svg-6jwtmkq0ke.jsx", "src/app/imports/Rectangle12.jsx"  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
