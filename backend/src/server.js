@@ -1,11 +1,13 @@
 import 'dotenv/config';
 
+import { checkVaultHealth, initVault } from './utils/vault.js';
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger-ui/swagger.js";
 import authRoutes from './routes/auth.route.js';
 import studentRoutes from './routes/student.route.js';
 import adminRoutes from './routes/admin.route.js';
 import UniversityRoutes from './routes/university.route.js';
+import credentialRoutes from './routes/credential.route.js';
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -20,9 +22,17 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get('/api/helloworld', (req, res) => res.send('Hello World!'));
 
 app.use('/api/auth', authRoutes);
-app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/students', studentRoutes);
 app.use('/api/universities', UniversityRoutes);
+app.use('/api/universities/credentials', credentialRoutes);
 
 const PORT = process.env.PORT || 8080;
+
+checkVaultHealth()
+  .then(() => console.log('Vault connected'))
+  .catch(() => console.warn('WARNING: Vault is not reachable. Credential issuance will fail.'));
+
+initVault().catch(e => console.warn('Vault init failed:', e.message));
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

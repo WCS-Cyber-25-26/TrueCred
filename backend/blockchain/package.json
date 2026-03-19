@@ -1,0 +1,25 @@
+{
+  "name": "truecred-contracts",
+  "version": "1.0.0",
+  "description": "TrueCred on-chain credential registry (Hardhat project)",
+  "scripts": {
+    "explorer": "node scripts/serve-explorer.js",
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "register:local": "hardhat run scripts/registerUniversity.js --network localhost",
+    "register:sepolia": "hardhat run scripts/registerUniversity.js --network sepolia",
+    "test:issue": "hardhat run scripts/testIssueCredential.js --network localhost",
+    "test:issue:sepolia": "hardhat run scripts/testIssueCredential.js --network sepolia",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "dotenv": "^16.0.0",
+    "hardhat": "^2.28.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
