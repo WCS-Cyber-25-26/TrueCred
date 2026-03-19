@@ -21,7 +21,8 @@ export const sendInvite = async (req, res) => {
 
 export const revokeUniversity = async (req, res) => {
     try {
-        res.status(200).send("Revoked University successfully");
+        const result = await adminService.revokeUniversity(req.params.id, req.user.id);
+        res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -38,33 +39,25 @@ export const updateUniversity = async (req, res) => {
 export const getAllUniversities = async (req, res) => {
     try {
         const universities = await adminService.getAllUniversities();
-
-        const formattedUniversities = universities.map((uni) => {
-            const { revocation, ...universityData } = uni;
-
-            const revocationInfo = revocation 
-            ? { ...revocation, status: 'Revoked' } 
-            : { status: 'Active' };
-
-            return {
-                ...universityData,
-                revocation: revocationInfo
-            };
-        });
-        res.status(200).json(formattedUniversities);
-        
+        res.status(200).json(universities);
     } catch (err) {
-        console.error("Controller Error:", err.message);
-        res.status(500).json({ 
-            message: "Failed to retrieve universities",
-            error: err.message 
-        });
+        res.status(500).json({ error: err.message });
     }
 };
 
 export const getUniversityById = async (req, res) => {
     try {
-        res.status(200).send("University retrieval successful");
+        const university = await adminService.getUniversityById(req.params.id);
+        res.status(200).json(university);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const enableChain = async (req, res) => {
+    try {
+        const result = await adminService.enableChainForUniversity(req.params.id);
+        res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

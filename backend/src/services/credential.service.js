@@ -24,6 +24,12 @@ const credentialService = {
     const university = await prisma.university.findUnique({ where: { userId } });
     if (!university) throw new Error('University not found');
 
+    if (!schoolEmail.toLowerCase().endsWith(`@${university.domain.toLowerCase()}`)) {
+      const err = new Error(`Student email must belong to ${university.domain}`);
+      err.statusCode = 422;
+      throw err;
+    }
+
     const student = await findOrCreateStudent(schoolEmail, studentFullName);
 
     const canonicalHash = computeCanonicalHash({

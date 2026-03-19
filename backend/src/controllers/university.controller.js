@@ -20,7 +20,8 @@ export const getUniversityStudents = async (req, res) => {
 
 export const getUniversityCredentials = async (req, res) => {
     try {
-        res.status(200).send("All university credentials retrieved successfully");
+        const credentials = await universityService.getUniversityCredentials(req.user.id);
+        res.status(200).json(credentials);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

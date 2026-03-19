@@ -7,8 +7,8 @@ export const login = async (req, res) => {
     const token = await authService.login({ email, password });
 
     res.cookie('access_token', token, {
-      httpOnly: false,   // only for testing in Swagger
-      secure: false,     // localhost testing
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000,
     });

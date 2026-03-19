@@ -4,18 +4,42 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, UserPlus } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Mock login logic
-    console.log("Logging in with:", email, password);
-    // Redirect to dashboard after successful login
-    router.push("/UniversityDashboard");
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+      const user = login(data.token);
+      const role = user?.role;
+      if (role === "ADMIN") router.push("/dashboard/admin");
+      else if (role === "STUDENT") router.push("/dashboard/student");
+      else router.push("/dashboard/university");
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,12 +95,17 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {error && (
+              <p className="text-red-500 font-bold text-sm text-center -mt-2">{error}</p>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-[#043682] text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-[#032b69] transition-all hover:shadow-lg active:scale-[0.98]"
+              disabled={loading}
+              className="w-full bg-[#043682] text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-[#032b69] transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
-              Login
-              <ArrowRight className="w-5 h-5" />
+              {loading ? "Logging in…" : "Login"}
+              {!loading && <ArrowRight className="w-5 h-5" />}
             </button>
           </form>
 

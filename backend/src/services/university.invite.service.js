@@ -40,13 +40,21 @@ const universityInviteService = {
       }),
     ]);
 
-    const { address, privateKey } = generateWallet();
-    await storePrivateKey(invite.universityId, privateKey);
-    await registerUniversityOnChain(address, invite.universityId, invite.university.name);
-    await fundWallet(address);
+    let chainEnabled = false;
+    let blockchainId = null;
+    try {
+      const { address, privateKey } = generateWallet();
+      await storePrivateKey(invite.universityId, privateKey);
+      await registerUniversityOnChain(address, invite.universityId, invite.university.name);
+      await fundWallet(address);
+      blockchainId = address;
+      chainEnabled = true;
+    } catch (e) {
+      console.error('Blockchain onboarding failed during invite accept:', e.message);
+    }
     await prisma.university.update({
       where: { id: invite.universityId },
-      data: { blockchainId: address, chainEnabled: true },
+      data: { blockchainId, chainEnabled },
     });
 
     return { message: 'University account activated successfully' };

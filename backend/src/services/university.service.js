@@ -213,8 +213,31 @@ const universityService = {
             };
         });
     },
-    async getUniversityCredentials() {
+    async getUniversityCredentials(userId) {
+        const university = await prisma.university.findUnique({
+            where: { userId },
+            select: { id: true }
+        });
+        if (!university) throw new Error('University not found');
 
+        return prisma.credential.findMany({
+            where: { universityId: university.id },
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                degreeName: true,
+                program: true,
+                awardedDate: true,
+                createdAt: true,
+                txHash: true,
+                student: {
+                    select: { id: true, fullName: true, pseudonymousId: true }
+                },
+                revocation: {
+                    select: { revokedAt: true, revokedBy: true, reason: true }
+                }
+            }
+        });
     },
     async getStudentbyStudentId(studentId, userId) {
         // Validate required inputs to prevent malformed database queries
