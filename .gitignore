@@ -5,3 +5,11 @@ dist
 build
 .next
 settings.json
+# Generated datasets
+certificate-generator/dataset/
+
+# Assets (images, seals, signatures, etc.)
+certificate-generator/assets/
+
+certificate-generator/templates/fonts
+certificate-generator/templates/__pycache__
