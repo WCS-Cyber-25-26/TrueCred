@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Fragment } from 'react';
 import { apiFetch } from '@/lib/api';
 import {
   Search, Users, ChevronDown, ChevronUp, FileText,
-  CheckCircle, XCircle, ExternalLink, Plus, Loader2
+  CheckCircle, XCircle, ExternalLink, Plus, Loader2, X,
 } from 'lucide-react';
 
 export default function UniversityDashboard() {
@@ -120,190 +120,254 @@ export default function UniversityDashboard() {
     ), [students, searchTerm]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#f1f5f9] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-[#043682] animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#020817' }}>
+      <Loader2 className="w-7 h-7 animate-spin" style={{ color: '#60a5fa' }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] pb-12 pt-8">
+    <div className="min-h-screen pb-12 pt-8" style={{ background: '#020817', fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* Toast */}
       {toast && (
-        <div className={`fixed top-20 right-6 z-50 px-6 py-4 rounded-2xl font-bold shadow-lg text-white transition-all ${toast.type === 'error' ? 'bg-red-500' : 'bg-[#22c55e]'}`}>
+        <div
+          className="fixed top-20 right-6 z-50 px-5 py-3 rounded-xl text-sm font-semibold"
+          style={toast.type === 'error'
+            ? { background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.4)', color: '#f87171' }
+            : { background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}
+        >
           {toast.msg}
         </div>
       )}
 
       <div className="max-w-[1440px] mx-auto px-8">
+
         {/* Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-black text-[#043682]">{university?.name || 'University Dashboard'}</h1>
-            <p className="text-gray-500 font-bold mt-1">{university?.domain}</p>
+            <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+              {university?.name || 'University Dashboard'}
+            </h1>
+            <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>
+              {university?.domain || 'Manage students and credentials'}
+            </p>
           </div>
           <button
             onClick={() => setShowIssueDialog(true)}
-            className="flex items-center gap-2 bg-[#043682] text-white px-6 py-3 rounded-2xl font-black hover:bg-[#032b69] transition-all shadow-md"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors"
+            style={{ background: '#2563eb' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#1d4ed8'}
+            onMouseLeave={e => e.currentTarget.style.background = '#2563eb'}
           >
-            <Plus className="w-5 h-5" /> Issue Credential
+            <Plus className="w-4 h-4" /> Issue Credential
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 bg-white rounded-2xl p-2 w-fit shadow-sm border border-gray-200">
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
           {[
-            { id: 'students', label: 'Students', count: students.length },
-            { id: 'credentials', label: 'Credentials', count: credentials.length },
-          ].map(({ id, label, count }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`px-6 py-2.5 rounded-xl font-black text-sm transition-all ${activeTab === id ? 'bg-[#043682] text-white shadow-sm' : 'text-gray-600 hover:text-[#043682]'}`}
+            { label: 'Total Students', value: students.length, icon: Users },
+            { label: 'Total Credentials', value: credentials.length, icon: FileText },
+            { label: 'Revoked', value: credentials.filter(c => c.revocation || c.status === 'revoked').length, icon: XCircle },
+          ].map(({ label, value, icon: Icon }) => (
+            <div
+              key={label}
+              className="rounded-xl p-5"
+              style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}
             >
-              {label} ({count})
-            </button>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#60a5fa' }}>
+                    {label}
+                  </p>
+                  <p className="text-3xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                    {value}
+                  </p>
+                </div>
+                <Icon className="w-5 h-5 mt-1" style={{ color: 'rgba(96,165,250,0.4)' }} />
+              </div>
+            </div>
           ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: '#0d1f3c', border: '1px solid rgba(37,99,235,0.2)' }}>
+            {[
+              { id: 'students', label: 'Students', count: students.length },
+              { id: 'credentials', label: 'Credentials', count: credentials.length },
+            ].map(({ id, label, count }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  activeTab === id ? 'text-white' : 'text-[#64748b] hover:text-white'
+                }`}
+                style={activeTab === id ? { background: '#2563eb' } : {}}
+              >
+                {label} ({count})
+              </button>
+            ))}
+          </div>
+
+          {/* Search — students tab only */}
+          {activeTab === 'students' && (
+            <div className="relative w-72">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#475569' }} />
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl text-sm text-white outline-none transition-colors"
+                style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)', color: 'white' }}
+                onFocus={e => e.target.style.borderColor = '#2563eb'}
+                onBlur={e => e.target.style.borderColor = 'rgba(37,99,235,0.2)'}
+              />
+            </div>
+          )}
         </div>
 
         {/* Students Tab */}
         {activeTab === 'students' && (
-          <>
-            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-200 mb-6">
-              <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name or email..."
-                  value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-100 border-2 border-gray-200 rounded-2xl focus:bg-white focus:border-[#043682] focus:ring-4 focus:ring-[#043682]/10 outline-none transition-all font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="bg-white rounded-[2rem] shadow-lg border border-gray-200 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="bg-gray-100 border-b-2 border-gray-200">
-                      <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Student</th>
-                      <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Email</th>
-                      <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Joined</th>
-                      <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest text-right">Credentials</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredStudents.length > 0 ? filteredStudents.map(student => (
-                      <Fragment key={student.id}>
-                        <tr
-                          onClick={() => handleExpandStudent(student.id)}
-                          className="hover:bg-blue-50/50 transition-colors cursor-pointer"
-                        >
-                          <td className="px-8 py-5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-[#043682] rounded-full flex items-center justify-center text-white font-black shrink-0">
-                                {student.fullName?.charAt(0) || '?'}
-                              </div>
-                              <span className="font-black text-gray-900">{student.fullName}</span>
+          <div className="rounded-xl overflow-hidden" style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(37,99,235,0.2)', background: '#0d1f3c' }}>
+                    {['Student', 'Pseudonymous ID', 'Joined', ''].map(h => (
+                      <th key={h} className="px-6 py-4 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#60a5fa' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredStudents.length > 0 ? filteredStudents.map(student => (
+                    <Fragment key={student.id}>
+                      <tr
+                        onClick={() => handleExpandStudent(student.id)}
+                        className="cursor-pointer transition-colors"
+                        style={{ borderBottom: '1px solid rgba(37,99,235,0.1)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0"
+                              style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.25)', color: '#60a5fa' }}
+                            >
+                              {student.fullName?.charAt(0) || '?'}
                             </div>
-                          </td>
-                          <td className="px-8 py-5 text-gray-600 font-medium">{student.pseudonymousId}</td>
-                          <td className="px-8 py-5 text-gray-600 font-medium">
-                            {student.createdAt ? new Date(student.createdAt).toLocaleDateString() : '—'}
-                          </td>
-                          <td className="px-8 py-5 text-right">
-                            {expandedStudentId === student.id
-                              ? <ChevronUp className="w-5 h-5 text-[#043682] ml-auto" />
-                              : <ChevronDown className="w-5 h-5 text-gray-400 ml-auto" />}
-                          </td>
-                        </tr>
-                        {expandedStudentId === student.id && (
-                          <tr key={`${student.id}-exp`}>
-                            <td colSpan={4} className="px-8 py-6 bg-blue-50/30">
-                              {loadingCreds[student.id] ? (
-                                <div className="flex justify-center py-4">
-                                  <Loader2 className="w-5 h-5 animate-spin text-[#043682]" />
-                                </div>
-                              ) : (
-                                <CredentialList
-                                  credentials={studentCredentials[student.id] || []}
-                                  onRevoke={handleRevoke}
-                                  revoking={revoking}
-                                />
-                              )}
-                            </td>
-                          </tr>
-                        )}
-                      </Fragment>
-                    )) : (
-                      <tr>
-                        <td colSpan={4} className="px-8 py-16 text-center">
-                          <Users className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                          <p className="font-black text-gray-400">No students found</p>
+                            <span className="text-sm font-semibold text-white">{student.fullName}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-mono" style={{ color: '#94a3b8' }}>{student.pseudonymousId}</td>
+                        <td className="px-6 py-4 text-sm" style={{ color: '#94a3b8' }}>
+                          {student.createdAt ? new Date(student.createdAt).toLocaleDateString() : '—'}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          {expandedStudentId === student.id
+                            ? <ChevronUp className="w-4 h-4 ml-auto" style={{ color: '#60a5fa' }} />
+                            : <ChevronDown className="w-4 h-4 ml-auto" style={{ color: 'rgba(255,255,255,0.2)' }} />}
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="px-8 py-4 bg-gray-50 border-t border-gray-200">
-                <p className="text-sm font-bold text-gray-500">
-                  Total: {filteredStudents.length} student{filteredStudents.length !== 1 ? 's' : ''}
-                </p>
-              </div>
+                      {expandedStudentId === student.id && (
+                        <tr key={`${student.id}-exp`}>
+                          <td colSpan={4} className="px-6 py-5" style={{ background: 'rgba(37,99,235,0.04)', borderTop: '1px solid rgba(37,99,235,0.1)' }}>
+                            {loadingCreds[student.id] ? (
+                              <div className="flex justify-center py-4">
+                                <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#60a5fa' }} />
+                              </div>
+                            ) : (
+                              <CredentialList
+                                credentials={studentCredentials[student.id] || []}
+                                onRevoke={handleRevoke}
+                                revoking={revoking}
+                              />
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  )) : (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-16 text-center">
+                        <Users className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(37,99,235,0.2)' }} />
+                        <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>No students found</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-          </>
+            <div className="px-6 py-3" style={{ background: '#0d1f3c', borderTop: '1px solid rgba(37,99,235,0.15)' }}>
+              <p className="text-xs font-medium" style={{ color: '#475569' }}>
+                {filteredStudents.length} student{filteredStudents.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Credentials Tab */}
         {activeTab === 'credentials' && (
-          <div className="bg-white rounded-[2rem] shadow-lg border border-gray-200 overflow-hidden">
+          <div className="rounded-xl overflow-hidden" style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-gray-100 border-b-2 border-gray-200">
-                    <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Degree</th>
-                    <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Student</th>
-                    <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Awarded</th>
-                    <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest">Status</th>
-                    <th className="px-8 py-5 text-xs font-black text-[#043682] uppercase tracking-widest text-right">Actions</th>
+                  <tr style={{ borderBottom: '1px solid rgba(37,99,235,0.2)', background: '#0d1f3c' }}>
+                    {['Degree', 'Student', 'Awarded', 'Status', ''].map(h => (
+                      <th key={h} className="px-6 py-4 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#60a5fa' }}>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {credentials.length > 0 ? credentials.map(cred => (
-                    <tr key={cred.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-8 py-5">
-                        <p className="font-black text-gray-900">{cred.degreeName}</p>
-                        {cred.program && <p className="text-sm text-gray-500 font-medium">{cred.program}</p>}
+                    <tr
+                      key={cred.id}
+                      className="transition-colors"
+                      style={{ borderBottom: '1px solid rgba(37,99,235,0.1)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.05)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <td className="px-6 py-4">
+                        <p className="text-sm font-semibold text-white">{cred.degreeName}</p>
+                        {cred.program && <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{cred.program}</p>}
                       </td>
-                      <td className="px-8 py-5 font-medium text-gray-700">{cred.student?.fullName || '—'}</td>
-                      <td className="px-8 py-5 text-gray-600 font-medium">
+                      <td className="px-6 py-4 text-sm" style={{ color: '#94a3b8' }}>{cred.student?.fullName || '—'}</td>
+                      <td className="px-6 py-4 text-sm" style={{ color: '#94a3b8' }}>
                         {cred.awardedDate ? new Date(cred.awardedDate).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-8 py-5">
+                      <td className="px-6 py-4">
                         {cred.revocation
-                          ? <span className="inline-flex items-center gap-1.5 text-red-600 font-black text-sm"><XCircle className="w-4 h-4" /> Revoked</span>
-                          : <span className="inline-flex items-center gap-1.5 text-[#22c55e] font-black text-sm"><CheckCircle className="w-4 h-4" /> Active</span>}
+                          ? <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#ef4444' }}><XCircle className="w-3.5 h-3.5" /> Revoked</span>
+                          : <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#22c55e' }}><CheckCircle className="w-3.5 h-3.5" /> Active</span>}
                       </td>
-                      <td className="px-8 py-5 text-right">
-                        <div className="flex items-center justify-end gap-3">
+                      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-4">
                           {cred.txHash && (
                             <a
                               href={`https://sepolia.etherscan.io/tx/${cred.txHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#043682] hover:text-[#032b69]"
+                              className="inline-flex items-center gap-1 text-xs font-semibold"
+                              style={{ color: '#60a5fa' }}
                               title="View on Etherscan"
                             >
-                              <ExternalLink className="w-4 h-4" />
+                              <ExternalLink className="w-3.5 h-3.5" />
                             </a>
                           )}
                           {!cred.revocation && (
                             <button
                               onClick={() => handleRevoke(cred.id)}
                               disabled={revoking === cred.id}
-                              className="text-sm font-black text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                              className="inline-flex items-center gap-1 text-xs font-semibold transition-colors disabled:opacity-40"
+                              style={{ color: '#ef4444' }}
                             >
-                              {revoking === cred.id ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Revoke'}
+                              {revoking === cred.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Revoke'}
                             </button>
                           )}
                         </div>
@@ -311,9 +375,9 @@ export default function UniversityDashboard() {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan={5} className="px-8 py-16 text-center">
-                        <FileText className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-                        <p className="font-black text-gray-400">No credentials issued yet</p>
+                      <td colSpan={5} className="px-6 py-16 text-center">
+                        <FileText className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(37,99,235,0.2)' }} />
+                        <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.3)' }}>No credentials issued yet</p>
                       </td>
                     </tr>
                   )}
@@ -322,14 +386,27 @@ export default function UniversityDashboard() {
             </div>
           </div>
         )}
-
       </div>
 
       {/* Issue Credential Dialog */}
       {showIssueDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-[2rem] shadow-2xl max-w-lg w-full p-8">
-            <h2 className="text-2xl font-black text-[#043682] mb-6">Issue Credential</h2>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6" style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.25)' }}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                Issue Credential
+              </h2>
+              <button
+                onClick={() => { setShowIssueDialog(false); setIssueError(''); }}
+                className="p-1.5 rounded-lg transition-colors"
+                style={{ color: '#94a3b8' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(37,99,235,0.1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <form onSubmit={handleIssue} className="space-y-4">
               {[
                 { label: 'Student Email', key: 'schoolEmail', type: 'email', placeholder: `student@${university?.domain || 'university.edu'}` },
@@ -339,30 +416,50 @@ export default function UniversityDashboard() {
                 { label: 'Awarded Date', key: 'awardedDate', type: 'date', placeholder: '' },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key}>
-                  <label className="text-xs font-black text-gray-600 uppercase tracking-widest block mb-1">{label}</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: '#60a5fa' }}>
+                    {label}
+                  </label>
                   <input
                     type={type}
                     required
                     placeholder={placeholder}
                     value={issueForm[key]}
                     onChange={e => setIssueForm(prev => ({ ...prev, [key]: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-[#043682] focus:ring-4 focus:ring-[#043682]/10 outline-none transition-all font-medium"
+                    className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-colors"
+                    style={{
+                      background: '#0d1f3c',
+                      border: '1px solid rgba(37,99,235,0.25)',
+                      fontFamily: "'DM Sans', sans-serif",
+                      color: 'white',
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#2563eb'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(37,99,235,0.25)'}
                   />
                 </div>
               ))}
-              {issueError && <p className="text-red-500 font-bold text-sm">{issueError}</p>}
+
+              {issueError && (
+                <p className="text-xs font-medium" style={{ color: '#f87171' }}>{issueError}</p>
+              )}
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => { setShowIssueDialog(false); setIssueError(''); }}
-                  className="flex-1 py-3 border-2 border-gray-200 rounded-2xl font-black text-gray-600 hover:border-gray-400 transition-all"
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                  style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', background: 'transparent' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={issuing}
-                  className="flex-1 py-3 bg-[#043682] text-white rounded-2xl font-black hover:bg-[#032b69] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  style={{ background: '#2563eb' }}
+                  onMouseEnter={e => !issuing && (e.currentTarget.style.background = '#1d4ed8')}
+                  onMouseLeave={e => e.currentTarget.style.background = '#2563eb'}
                 >
                   {issuing ? <><Loader2 className="w-4 h-4 animate-spin" /> Issuing…</> : 'Issue'}
                 </button>
@@ -377,49 +474,51 @@ export default function UniversityDashboard() {
 
 function CredentialList({ credentials, onRevoke, revoking }) {
   if (credentials.length === 0) return (
-    <p className="text-gray-400 font-bold text-center py-4">No credentials issued</p>
+    <p className="text-sm text-center py-4 font-medium" style={{ color: 'rgba(255,255,255,0.25)' }}>No credentials issued</p>
   );
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-black text-[#043682] uppercase tracking-widest flex items-center gap-2">
-        <FileText className="w-4 h-4" /> Credentials ({credentials.length})
+    <div className="space-y-2">
+      <h3 className="text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2 mb-3" style={{ color: '#60a5fa' }}>
+        <FileText className="w-3.5 h-3.5" /> Credentials ({credentials.length})
       </h3>
       {credentials.map(cred => (
-        <div key={cred.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200">
+        <div
+          key={cred.id}
+          className="flex items-center justify-between px-4 py-3 rounded-xl"
+          style={{ background: '#0d1f3c', border: '1px solid rgba(37,99,235,0.15)' }}
+        >
           <div>
-            <p className="font-black text-gray-900">{cred.degreeName}</p>
-            {cred.program && <p className="text-sm text-gray-500 font-medium">{cred.program}</p>}
-            <p className="text-xs text-gray-400 font-medium mt-0.5">
-              Awarded: {cred.awardedDate ? new Date(cred.awardedDate).toLocaleDateString() : '—'}
+            <p className="text-sm font-semibold text-white">{cred.degreeName}</p>
+            {cred.program && <p className="text-xs mt-0.5" style={{ color: '#94a3b8' }}>{cred.program}</p>}
+            <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              {cred.awardedDate ? new Date(cred.awardedDate).toLocaleDateString() : ''}
             </p>
           </div>
-          <div className="flex items-center gap-3 ml-4">
-            {cred.txHash && (
-              <a
-                href={`https://sepolia.etherscan.io/tx/${cred.txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#043682] hover:text-[#032b69]"
-                title="View on Etherscan"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-            {(cred.revocation || cred.status === 'revoked') ? (
-              <span className="text-sm font-black text-red-500 flex items-center gap-1">
-                <XCircle className="w-4 h-4" /> Revoked
+          <div className="flex items-center gap-3 shrink-0 ml-4">
+            {cred.revocation ? (
+              <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: '#ef4444' }}>
+                <XCircle className="w-3.5 h-3.5" /> Revoked
               </span>
             ) : (
               <>
-                <span className="text-sm font-black text-[#22c55e] flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" /> Active
-                </span>
+                {cred.txHash && (
+                  <a
+                    href={`https://sepolia.etherscan.io/tx/${cred.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#60a5fa' }}
+                    title="View on Etherscan"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
                 <button
                   onClick={() => onRevoke(cred.id)}
                   disabled={revoking === cred.id}
-                  className="text-xs font-black text-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                  className="text-xs font-semibold transition-colors disabled:opacity-40"
+                  style={{ color: '#ef4444' }}
                 >
-                  {revoking === cred.id ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Revoke'}
+                  {revoking === cred.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Revoke'}
                 </button>
               </>
             )}

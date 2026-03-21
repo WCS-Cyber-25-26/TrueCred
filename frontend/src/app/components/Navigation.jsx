@@ -4,17 +4,47 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useAuth } from "@/context/AuthContext";
 
-const logoImg = "/logo.png";
+function Logo() {
+  return (
+    <div className="flex items-center gap-2">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z"
+          stroke="#60a5fa"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M9 12L11 14L15 10" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className="font-display font-bold text-white text-xl tracking-tight">TrueCred</span>
+    </div>
+  );
+}
+
+function NavLink({ href, children, onClick }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="relative group text-slate-400 hover:text-white text-sm font-medium transition-colors duration-200"
+    >
+      {children}
+      <span
+        className="absolute -bottom-px left-0 right-0 h-px bg-blue-500 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-200"
+      />
+    </Link>
+  );
+}
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const { user } = useAuth();
-  const dashboardHref = user ? `/dashboard/${user.role.toLowerCase()}` : '/login';
+  const dashboardHref = user ? `/dashboard/${user.role.toLowerCase()}` : "/login";
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 10);
@@ -33,56 +63,40 @@ export default function Navigation() {
     <motion.nav
       initial={{ y: -8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className={`fixed top-0 left-0 right-0 z-50 bg-[#043682] transition-all duration-300 ${
-        isScrolled ? "shadow-lg border-b border-white/10" : ""
-      }`}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "border-b border-blue-900/30" : ""
+        }`}
+      style={{ backgroundColor: "#020817" }}
     >
-      <div className="max-w-[1440px] mx-auto px-8 flex items-center h-16">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center h-16">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center flex-shrink-0"
+          className="flex items-center gap-2 flex-shrink-0"
           onClick={(e) => scrollToSection(e, "home")}
         >
-          <div className="w-32 h-10">
-            <ImageWithFallback
-              src={logoImg}
-              alt="TrueCred Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <Logo />
         </Link>
 
         {/* Center Links */}
-        <nav className="flex-1 flex items-center justify-center gap-8">
-          <Link
-            href="/about"
-            className="text-white/80 hover:text-white text-sm font-medium transition-colors"
-          >
-            About Us
-          </Link>
-          <Link
-            href="/verify"
-            className="text-white/80 hover:text-white text-sm font-medium transition-colors"
-          >
-            Verify
-          </Link>
-        </nav>
+        <div className="flex-1 flex items-center justify-center gap-5 md:gap-8">
+          <NavLink href="/about">About</NavLink>
+          <NavLink href="/verify">Verify</NavLink>
+        </div>
 
         {/* CTA */}
         <div className="flex-shrink-0">
           {user ? (
             <Link
               href={dashboardHref}
-              className="bg-white text-[#043682] px-6 py-2 rounded-md text-sm font-bold transition-all hover:bg-[#22c55e] hover:text-white"
+              className="border border-blue-600 text-blue-400 px-3 py-1.5 md:px-5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white whitespace-nowrap"
             >
-              My Dashboard
+              Dashboard
             </Link>
           ) : (
             <Link
               href="/login"
-              className="bg-white text-[#043682] px-6 py-2 rounded-md text-sm font-bold transition-all hover:bg-[#22c55e] hover:text-white"
+              className="border border-blue-600 text-blue-400 px-3 py-1.5 md:px-5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white"
             >
               Login
             </Link>

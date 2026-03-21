@@ -1,16 +1,84 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, UserPlus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { motion } from "framer-motion";
+
+function ShieldIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z"
+        stroke="#60a5fa"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 12L11 14L15 10"
+        stroke="#60a5fa"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function InputField({ label, id, icon: Icon, right, inputProps }) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <label
+          htmlFor={id}
+          className="text-xs uppercase tracking-widest font-display font-bold"
+          style={{ color: "#94a3b8" }}
+        >
+          {label}
+        </label>
+        {right}
+      </div>
+      <div className="relative">
+        <Icon
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-200"
+          style={{ color: focused ? "#60a5fa" : "#475569" }}
+        />
+        <input
+          id={id}
+          {...inputProps}
+          onFocus={(e) => {
+            setFocused(true);
+            inputProps.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            inputProps.onBlur?.(e);
+          }}
+          className="w-full pl-11 pr-4 py-3 text-sm outline-none transition-all duration-200 font-body"
+          style={{
+            backgroundColor: "#0d1f3c",
+            border: `1px solid ${focused ? "rgba(59,130,246,0.6)" : "rgba(30,58,138,0.4)"}`,
+            borderRadius: 8,
+            color: "#ffffff",
+            boxShadow: focused ? "0 0 0 3px rgba(59,130,246,0.1)" : "none",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [btnHover, setBtnHover] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
 
@@ -43,85 +111,167 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#043682] flex items-center justify-center p-6 pt-32 pb-24">
-      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/20">
-        <div className="p-12">
-          {/* Logo/Header */}
-          <div className="text-center mb-10">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <span className="text-4xl font-black tracking-tighter">
-                <span className="text-black">True</span>
-                <span className="text-[#043682]">Cred</span>
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ backgroundColor: "#020817" }}
+    >
+      {/* Background glow */}
+      <div
+        className="pointer-events-none fixed inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 50% at 50% 40%, rgba(37,99,235,0.07) 0%, transparent 80%)",
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="relative w-full max-w-md"
+        style={{
+          backgroundColor: "#0a1628",
+          border: "1px solid rgba(30,58,138,0.4)",
+          borderRadius: 12,
+          overflow: "hidden",
+        }}
+      >
+        {/* Top-left corner bracket */}
+
+
+
+        <div className="p-10">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <ShieldIcon />
+              <span className="font-display font-bold text-white text-xl tracking-tight">
+                TrueCred
               </span>
             </Link>
-            <h1 className="text-3xl font-black text-gray-900">Welcome Back</h1>
-            <p className="text-gray-600 font-bold mt-2">Enter your credentials to access your account</p>
+          </div>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1
+              className="text-2xl font-bold font-display"
+              style={{ color: "#ffffff" }}
+            >
+              Welcome Back
+            </h1>
+            <p className="mt-1 text-sm font-body" style={{ color: "#94a3b8" }}>
+              Enter your credentials to access your account
+            </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1 uppercase tracking-widest">Work Email</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@institution.edu"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:bg-white focus:border-[#043682] focus:ring-4 focus:ring-[#043682]/10 outline-none transition-all font-bold"
-                />
-              </div>
-            </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <InputField
+              label="Work Email"
+              id="email"
+              icon={Mail}
+              inputProps={{
+                type: "email",
+                required: true,
+                value: email,
+                placeholder: "name@institution.edu",
+                onChange: (e) => setEmail(e.target.value),
+              }}
+            />
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-black text-gray-700 uppercase tracking-widest">Password</label>
-                <button type="button" className="text-sm font-black text-[#043682] hover:underline">
+            <InputField
+              label="Password"
+              id="password"
+              icon={Lock}
+              right={
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-display font-bold transition-colors duration-200"
+                  style={{ color: "#60a5fa" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#93c5fd")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "#60a5fa")}
+                >
                   Forgot?
-                </button>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl focus:bg-white focus:border-[#043682] focus:ring-4 focus:ring-[#043682]/10 outline-none transition-all font-bold"
-                />
-              </div>
-            </div>
+                </Link>
+              }
+              inputProps={{
+                type: "password",
+                required: true,
+                value: password,
+                placeholder: "••••••••",
+                onChange: (e) => setPassword(e.target.value),
+              }}
+            />
 
             {error && (
-              <p className="text-red-500 font-bold text-sm text-center -mt-2">{error}</p>
+              <div
+                className="flex items-center gap-2 px-3 py-2 text-sm"
+                style={{
+                  backgroundColor: "rgba(239,68,68,0.08)",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                  color: "#f87171",
+                  borderRadius: 6,
+                }}
+              >
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#043682] text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 hover:bg-[#032b69] transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3 text-sm font-display font-bold text-white transition-all duration-200 disabled:opacity-60"
+              style={{
+                backgroundColor: btnHover && !loading ? "#1d4ed8" : "#2563eb",
+                borderRadius: 8,
+                border: "none",
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+              onMouseEnter={() => setBtnHover(true)}
+              onMouseLeave={() => setBtnHover(false)}
             >
-              {loading ? "Logging in…" : "Login"}
-              {!loading && <ArrowRight className="w-5 h-5" />}
+              {loading ? (
+                <>
+                  <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                  Logging in…
+                </>
+              ) : (
+                <>
+                  Login
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </button>
           </form>
 
-          {/* Footer/Contact Prompt */}
-          <div className="mt-10 pt-8 border-t-2 border-gray-50 text-center">
-            <p className="text-gray-600 font-bold mb-4">Don't have an institutional account?</p>
+          {/* Footer */}
+          <div
+            className="mt-8 pt-6 text-center"
+            style={{ borderTop: "1px solid rgba(30,58,138,0.3)" }}
+          >
+            <p className="text-sm font-body" style={{ color: "#475569" }}>
+              Don&apos;t have an institutional account?
+            </p>
             <Link
               href="/#contact"
-              className="inline-flex items-center gap-2 text-[#043682] font-black hover:gap-3 transition-all"
+              className="inline-flex items-center gap-1.5 mt-2 text-sm font-display font-bold transition-colors duration-200"
+              style={{ color: "#60a5fa" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#93c5fd")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#60a5fa")}
             >
-              <UserPlus className="w-5 h-5" />
+              <UserPlus className="w-4 h-4" />
               Contact us to partner
             </Link>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

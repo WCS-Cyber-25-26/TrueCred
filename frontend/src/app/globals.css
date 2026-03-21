@@ -1,5 +1,91 @@
 @import "tailwindcss";
 
+/* ── Keyframes ─────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes scanLine {
+  0%   { top: 0%; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ping-slow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(1.18); opacity: 0; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Utility classes ───────────────────────────────────── */
+.font-display { font-family: 'Syne', sans-serif; }
+.font-body    { font-family: 'DM Sans', sans-serif; }
+
+.hero-shimmer {
+  background: linear-gradient(100deg, #60a5fa 0%, #e2e8f0 45%, #60a5fa 100%);
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline;
+}
+
+.animate-shimmer-text {
+  background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.animate-scan {
+  animation: scanLine 2.5s ease-in-out infinite;
+}
+
+.animate-ping-slow {
+  animation: ping-slow 2s ease-in-out infinite;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ── Hero button overlay ───────────────────────────────── */
+.truecred-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: linear-gradient(135deg, rgba(37,99,235,0.2), transparent);
+  border-radius: 9999px;
+}
+
+.truecred-button:hover::after {
+  opacity: 1;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

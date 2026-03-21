@@ -1,42 +1,38 @@
 'use client'
 
 import { useState } from "react";
-import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Download, ExternalLink } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Download, ExternalLink, FileText } from "lucide-react";
 import CameraCapture from "./CameraCapture";
 
 const VERDICT_CONFIG = {
   verified: {
-    color: "text-[#22c55e]",
-    bg: "bg-green-50 border-green-200",
-    icon: <CheckCircle className="w-16 h-16" />,
+    color: "#22c55e",
+    icon: <CheckCircle className="w-6 h-6" />,
     title: "Certificate Verified",
     message: "This certificate is anchored on the blockchain and passes visual authenticity checks.",
   },
   verified_tampered: {
-    color: "text-yellow-600",
-    bg: "bg-yellow-50 border-yellow-200",
-    icon: <AlertCircle className="w-16 h-16" />,
+    color: "#fbbf24",
+    icon: <AlertCircle className="w-6 h-6" />,
     title: "Verified but Possibly Tampered",
     message: "The blockchain record matches, but visual AI analysis detected signs of alteration. Manual review recommended.",
   },
   revoked: {
-    color: "text-red-600",
-    bg: "bg-red-50 border-red-200",
-    icon: <XCircle className="w-16 h-16" />,
+    color: "#ef4444",
+    icon: <XCircle className="w-6 h-6" />,
     title: "Certificate Revoked",
     message: "This credential has been revoked by the issuing institution.",
   },
   not_on_chain: {
-    color: "text-yellow-600",
-    bg: "bg-yellow-50 border-yellow-200",
-    icon: <AlertCircle className="w-16 h-16" />,
+    color: "#fbbf24",
+    icon: <AlertCircle className="w-6 h-6" />,
     title: "Not on Blockchain",
     message: "The certificate looks authentic visually, but no blockchain record was found. It may be from an unregistered institution.",
   },
   forged: {
-    color: "text-red-600",
-    bg: "bg-red-50 border-red-200",
-    icon: <XCircle className="w-16 h-16" />,
+    color: "#ef4444",
+    icon: <XCircle className="w-6 h-6" />,
     title: "Forged Certificate",
     message: "No blockchain record found and visual analysis indicates this certificate is not authentic.",
   },
@@ -45,7 +41,7 @@ const VERDICT_CONFIG = {
 const EMPTY_FIELDS = { university: "", studentName: "", degree: "", degreeAwardedDate: "", hiddenIdentifier: "" };
 
 export default function VerifyPage() {
-  const [mode, setMode] = useState("upload"); // upload | fields
+  const [mode, setMode] = useState("upload");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [fields, setFields] = useState(EMPTY_FIELDS);
@@ -61,39 +57,22 @@ export default function VerifyPage() {
     setResult(null);
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
+  const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = () => setIsDragging(false);
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      setUploadedFile(files[0]);
-      setVerificationStatus("idle");
-      setResult(null);
-    }
+    if (files.length > 0) { setUploadedFile(files[0]); setVerificationStatus("idle"); setResult(null); }
   };
-
   const handleFileSelect = (e) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      setUploadedFile(files[0]);
-      setVerificationStatus("idle");
-      setResult(null);
-    }
+    if (files && files.length > 0) { setUploadedFile(files[0]); setVerificationStatus("idle"); setResult(null); }
   };
 
   const handleVerify = async () => {
     setVerificationStatus("loading");
     setErrorMessage(null);
-
     try {
       let response;
       if (mode === "fields") {
@@ -107,13 +86,8 @@ export default function VerifyPage() {
         formData.append("certificate", uploadedFile);
         response = await fetch("/api/verify", { method: "POST", body: formData });
       }
-
       const data = await response.json();
-      if (!response.ok) {
-        setErrorMessage(data.error || "Verification failed");
-        setVerificationStatus("error");
-        return;
-      }
+      if (!response.ok) { setErrorMessage(data.error || "Verification failed"); setVerificationStatus("error"); return; }
       setResult(data);
       setVerificationStatus(data.verdict);
     } catch (err) {
@@ -128,46 +102,96 @@ export default function VerifyPage() {
 
   const config = VERDICT_CONFIG[verificationStatus];
   const showResult = result && config;
+  const isLoading = verificationStatus === "loading";
+  const btnActive = canVerify && !isLoading;
 
   return (
-    <div className="pt-32 pb-20 min-h-screen bg-gray-50">
-      <div className="max-w-[1200px] mx-auto px-12">
-        {/* Page Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            Verify Credential
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Upload a diploma or certificate to verify its authenticity using our AI-powered blockchain verification system.
-          </p>
-        </div>
+    <div
+      className="min-h-screen pt-28 pb-24 px-6"
+      style={{ background: "#020817", fontFamily: "'DM Sans', sans-serif" }}
+    >
+      <div className="max-w-[780px] mx-auto">
 
-        {/* Mode toggle */}
+        {/* ── Page header ─────────────────────────────────────── */}
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <h1
+            className="text-4xl md:text-5xl font-bold text-white mb-3"
+            style={{ fontFamily: "'Syne', sans-serif", letterSpacing: "-0.02em" }}
+          >
+            Verify a Credential
+          </h1>
+          {/* Right glow */}
+          <div
+            className="absolute right-0 top-0 h-full w-1/2 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle at 70% 30%, rgba(37,99,235,0.12) 0%, rgba(2,8,23,0) 60%)",
+            }}
+          />
+          {/* Left glow (mirrored) */}
+          <div
+            className="absolute left-0 top-0 h-full w-1/2 pointer-events-none -scale-x-100"
+            style={{
+              background:
+                "radial-gradient(circle at 70% 30%, rgba(37,99,235,0.12) 0%, rgba(2,8,23,0) 60%)",
+            }}
+          />
+          <p className="text-base mx-auto max-w-lg" style={{ color: "#64748b", lineHeight: 1.6 }}>
+            Upload a diploma or certificate and we'll cross-check it against the blockchain,
+            then run an AI visual scan — usually takes under 10 seconds.
+          </p>
+        </motion.div>
+
+        {/* ── Testing mode toggle ──────────────────────────────── */}
         {process.env.NEXT_PUBLIC_SHOW_MANUAL_TEST === 'true' && (
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
-              <button
-                onClick={() => { setMode("upload"); setResult(null); setVerificationStatus("idle"); }}
-                className={`px-6 py-2 rounded-lg font-semibold text-sm transition-all ${mode === "upload" ? "bg-[#043682] text-white shadow" : "text-gray-500 hover:text-gray-800"}`}
-              >
-                Upload Certificate
-              </button>
-              <button
-                onClick={() => { setMode("fields"); setResult(null); setVerificationStatus("idle"); }}
-                className={`px-6 py-2 rounded-lg font-semibold text-sm transition-all ${mode === "fields" ? "bg-[#043682] text-white shadow" : "text-gray-500 hover:text-gray-800"}`}
-              >
-                Manual Fields (Test)
-              </button>
+          <div className="flex mb-8">
+            <div
+              className="inline-flex p-1 rounded-lg gap-1"
+              style={{ background: "#0a1628", border: "1px solid rgba(37,99,235,0.2)" }}
+            >
+              {[
+                { id: "upload", label: "Upload Certificate" },
+                { id: "fields", label: "Manual Fields (Test)" },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => { setMode(id); setResult(null); setVerificationStatus("idle"); }}
+                  className="px-4 py-1.5 rounded-md text-sm font-medium transition-all"
+                  style={mode === id
+                    ? { background: "#2563eb", color: "white" }
+                    : { color: "#64748b" }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Manual fields form */}
+        {/* ── Manual fields (testing mode) ────────────────────── */}
         {mode === "fields" && (
-          <div className="bg-white rounded-[2rem] p-10 shadow-xl border border-gray-100 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-xl p-7 mb-8"
+            style={{ background: "#0a1628", border: "1px solid rgba(37,99,235,0.2)" }}
+          >
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#043682] bg-blue-50 px-3 py-1 rounded-full">Testing Mode</span>
-              <p className="text-sm text-gray-500">Skips OCR — verifies fields directly against the blockchain</p>
+              <span
+                className="text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-md"
+                style={{ border: "1px solid rgba(37,99,235,0.3)", color: "#60a5fa", background: "rgba(37,99,235,0.08)" }}
+              >
+                Testing Mode
+              </span>
+              <p className="text-sm" style={{ color: "#64748b" }}>
+                Verifies fields directly against the blockchain — skips OCR
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {[
@@ -177,318 +201,497 @@ export default function VerifyPage() {
                 { key: "degreeAwardedDate", label: "Awarded Date", placeholder: "YYYY-MM-DD" },
               ].map(({ key, label, placeholder }) => (
                 <div key={key}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">{label}</label>
+                  <label
+                    className="block text-xs font-semibold mb-2"
+                    style={{ color: "#94a3b8" }}
+                  >
+                    {label}
+                  </label>
                   <input
                     type="text"
                     placeholder={placeholder}
                     value={fields[key]}
                     onChange={(e) => setFields((f) => ({ ...f, [key]: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#043682] focus:border-transparent"
+                    className="w-full px-4 py-2.5 rounded-lg text-sm text-white outline-none transition-colors"
+                    style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.25)", color: "white" }}
+                    onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.6)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(37,99,235,0.25)"}
                   />
                 </div>
               ))}
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Cert ID <span className="text-red-500">*</span>
+                <label
+                  className="block text-xs font-semibold mb-2"
+                  style={{ color: "#94a3b8" }}
+                >
+                  Cert ID <span style={{ color: "#ef4444" }}>*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="TC-XXXX-XXXX"
                   value={fields.hiddenIdentifier}
                   onChange={(e) => setFields((f) => ({ ...f, hiddenIdentifier: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#043682] focus:border-transparent"
+                  className="w-full px-4 py-2.5 rounded-lg text-sm font-mono text-white outline-none transition-colors"
+                  style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.25)", color: "white" }}
+                  onFocus={e => e.target.style.borderColor = "rgba(59,130,246,0.6)"}
+                  onBlur={e => e.target.style.borderColor = "rgba(37,99,235,0.25)"}
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 ${mode === "fields" ? "hidden" : ""}`}>
-          {/* Top Left: Upload Area */}
-          <div className="flex flex-col">
-            <div
+        {/* ── Main layout (upload mode) ────────────────────────── */}
+        <div className={mode === "fields" ? "hidden" : ""}>
+
+          {/* Upload zone */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            className="mb-5"
+          >
+            <input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={handleFileSelect}
+            />
+            <label
+              htmlFor="file-upload"
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`flex-grow border-4 border-dashed rounded-[2rem] p-12 text-center transition-all flex flex-col items-center justify-center ${
-                isDragging
-                  ? "border-[#043682] bg-blue-50"
-                  : "border-gray-300 bg-white hover:border-gray-400"
-              }`}
+              className="block cursor-pointer"
+              style={{
+                borderRadius: 12,
+                border: isDragging
+                  ? "1.5px dashed rgba(59,130,246,0.6)"
+                  : uploadedFile
+                    ? "1.5px dashed rgba(34,197,94,0.5)"
+                    : "1.5px dashed rgba(37,99,235,0.25)",
+                background: isDragging
+                  ? "rgba(37,99,235,0.05)"
+                  : uploadedFile
+                    ? "rgba(34,197,94,0.03)"
+                    : "#0a1628",
+                transition: "all 0.2s ease",
+                minHeight: 220,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "2.5rem 2rem",
+              }}
             >
-              <Upload className="w-16 h-16 mb-4 text-[#043682]" />
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Upload Certificate
-              </h3>
-              <p className="text-gray-600 mb-8">
-                Drop your PDF, JPG, or PNG here
-              </p>
-              <input
-                type="file"
-                id="file-upload"
-                className="hidden"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileSelect}
-              />
-              <label
-                htmlFor="file-upload"
-                className="inline-block bg-[#043682] text-white px-10 py-4 rounded-xl font-bold cursor-pointer transition-all hover:bg-[#032b69] hover:shadow-lg active:scale-95"
-              >
-                Choose File
-              </label>
-              {uploadedFile && (
-                <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-blue-50 text-[#043682] rounded-full text-sm font-semibold border border-blue-100">
-                  <CheckCircle className="w-4 h-4" />
-                  {uploadedFile.name}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Top Right: How it works */}
-          <div className="bg-white rounded-[2rem] p-10 shadow-xl border border-gray-100">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-              How Verification Works
-            </h3>
-            <div className="space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-[#043682] text-white flex items-center justify-center text-sm font-bold shrink-0">1</div>
-                <div>
-                  <p className="font-semibold text-gray-900">OCR Text Extraction</p>
-                  <p className="text-sm text-gray-600">We read the certificate fields and hidden Cert ID using Google Cloud Vision.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-[#043682] text-white flex items-center justify-center text-sm font-bold shrink-0">2</div>
-                <div>
-                  <p className="font-semibold text-gray-900">Blockchain Verification</p>
-                  <p className="text-sm text-gray-600">The canonical hash is checked against the Ethereum smart contract.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-[#043682] text-white flex items-center justify-center text-sm font-bold shrink-0">3</div>
-                <div>
-                  <p className="font-semibold text-gray-900">AI Visual Analysis</p>
-                  <p className="text-sm text-gray-600">An EfficientNet+DINOv2 model scores visual authenticity of the certificate body.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-full bg-[#22c55e] text-white flex items-center justify-center text-sm font-bold shrink-0">✓</div>
-                <div>
-                  <p className="font-semibold text-gray-900">Combined Verdict</p>
-                  <p className="text-sm text-gray-600">Both signals are combined to produce a final verdict.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Left: Take a Picture */}
-          <div className="bg-white rounded-[2rem] p-10 shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-8">
-            <div className="w-20 h-20 bg-blue-50 rounded-[1.5rem] flex items-center justify-center shrink-0">
-              <Camera className="w-10 h-10 text-[#043682]" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                Take a picture
-              </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                No digital file? Use your devices camera to capture a clear photo of the original certificate.
-              </p>
-              <button
-                onClick={() => setShowCamera(true)}
-                className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold transition-all hover:border-[#043682] hover:text-[#043682] active:scale-95"
-              >
-                Open Camera
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Right: Advice Section */}
-          <div className="bg-blue-50 border border-blue-100 rounded-[2rem] p-10 flex flex-col justify-center">
-            <h3 className="text-2xl font-bold text-[#043682] mb-6 flex items-center gap-3">
-              <AlertCircle className="w-7 h-7" />
-              Pro Advice
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#043682] mt-2 shrink-0" />
-                <p className="text-gray-700 text-sm leading-relaxed">Ensure the document is well-lit and in focus</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#043682] mt-2 shrink-0" />
-                <p className="text-gray-700 text-sm leading-relaxed">Include all four edges of the certificate</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#043682] mt-2 shrink-0" />
-                <p className="text-gray-700 text-sm leading-relaxed">Avoid strong glares or deep shadows</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#043682] mt-2 shrink-0" />
-                <p className="text-gray-700 text-sm leading-relaxed">Use the highest resolution available</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Full-width Verify Button */}
-        <div className="max-w-xl mx-auto mb-16">
-          <button
-            onClick={handleVerify}
-            disabled={!canVerify || verificationStatus === "loading"}
-            className="w-full bg-[#22c55e] text-white py-5 rounded-2xl font-bold text-2xl transition-all hover:bg-[#16a34a] hover:shadow-[0_10px_30px_rgba(34,197,94,0.3)] disabled:bg-gray-200 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center gap-3"
-          >
-            {verificationStatus === "loading" ? (
-              <>
-                <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              "Start Verification"
-            )}
-          </button>
-        </div>
-
-        {/* Error display */}
-        {verificationStatus === "error" && (
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8 flex items-center gap-4">
-            <XCircle className="w-8 h-8 text-red-600 shrink-0" />
-            <p className="text-red-700 font-medium">{errorMessage}</p>
-          </div>
-        )}
-
-        {/* Results Section */}
-        {showResult && (
-          <div className={`rounded-2xl p-10 shadow-lg border ${config.bg}`}>
-            <div className="flex items-start gap-6 mb-8">
-              <div className={config.color}>{config.icon}</div>
-              <div className="flex-1">
-                <h2 className={`text-3xl font-bold mb-3 ${config.color}`}>
-                  {config.title}
-                </h2>
-                <p className="text-gray-700 text-lg">{config.message}</p>
-              </div>
-            </div>
-
-            {/* Dual-signal detail cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* AI Score */}
-              {result.aiScore !== null ? (
-                <div className="bg-white rounded-xl p-6 border border-gray-100">
-                  <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">AI Visual Score</p>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl font-bold text-gray-900">
-                      {(result.aiScore * 100).toFixed(0)}%
-                    </span>
-                    <span className={`text-sm font-semibold px-2 py-1 rounded-full ${result.aiScore >= 0.7 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                      {result.aiScore >= 0.7 ? 'Authentic' : 'Suspicious'}
-                    </span>
+              {uploadedFile ? (
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)" }}
+                  >
+                    <CheckCircle className="w-6 h-6" style={{ color: "#22c55e" }} />
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
+                  <div>
                     <div
-                      className={`h-2 rounded-full transition-all ${result.aiScore >= 0.7 ? 'bg-green-500' : 'bg-red-500'}`}
-                      style={{ width: `${result.aiScore * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 flex items-center justify-center">
-                  <p className="text-sm text-gray-400 italic">AI score skipped in manual test mode</p>
-                </div>
-              )}
-
-              {/* Blockchain */}
-              <div className="bg-white rounded-xl p-6 border border-gray-100">
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Blockchain Record</p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    {result.issuedAt ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-500" />
-                    )}
-                    <span className="text-sm text-gray-700">
-                      {result.issuedAt
-                        ? `Issued ${new Date(result.issuedAt).toLocaleDateString()}`
-                        : 'Not found on chain'}
-                    </span>
-                  </div>
-                  {result.revokedAt && (
-                    <div className="flex items-center gap-2">
-                      <XCircle className="w-5 h-5 text-red-500" />
-                      <span className="text-sm text-gray-700">
-                        Revoked {new Date(result.revokedAt).toLocaleDateString()}
-                      </span>
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg font-mono text-sm mb-1.5"
+                      style={{ background: "#0d1f3c", color: "#4ade80" }}
+                    >
+                      <FileText className="w-3.5 h-3.5 shrink-0" />
+                      {uploadedFile.name}
                     </div>
-                  )}
-                  {result.rsaVerified && (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-gray-700">RSA signature verified</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Credential details */}
-            {result.credential && (
-              <div className="bg-white rounded-xl p-6 border border-gray-100 mb-6">
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Credential Details</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Institution</p>
-                    <p className="font-semibold text-gray-900">{result.credential.university.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Degree</p>
-                    <p className="font-semibold text-gray-900">{result.credential.degreeName}</p>
-                  </div>
-                  {result.credential.program && (
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Program</p>
-                      <p className="font-semibold text-gray-900">{result.credential.program}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Awarded</p>
-                    <p className="font-semibold text-gray-900">
-                      {new Date(result.credential.awardedDate).toLocaleDateString()}
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
+                      Click to replace
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Canonical hash + etherscan link — only shown when on-chain */}
-            {result.issuedAt && (
-              <div className="bg-white rounded-xl p-6 border border-gray-100 mb-6">
-                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Cryptographic Proof</p>
-                <div className="space-y-3">
+              ) : (
+                <div className="flex flex-col items-center gap-4 text-center">
+                  <Upload className="w-8 h-8" style={{ color: isDragging ? "#60a5fa" : "#334155" }} />
                   <div>
-                    <p className="text-xs text-gray-500 mb-1">Canonical Hash (SHA-256)</p>
-                    <p className="font-mono text-xs text-gray-700 break-all">{result.canonicalHash}</p>
+                    <p className="text-base font-medium text-white mb-1">
+                      Drop your certificate here
+                    </p>
+                    <p className="text-sm" style={{ color: "#475569" }}>
+                      or click to browse &nbsp;·&nbsp;{" "}
+                      <span style={{ color: "#334155" }}>PDF, JPG, PNG</span>
+                    </p>
                   </div>
-                  {result.etherscanUrl && (
-                    <a
-                      href={result.etherscanUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-[#043682] text-sm font-semibold hover:underline"
+                </div>
+              )}
+            </label>
+          </motion.div>
+
+          {/* Below upload: How it works + Camera */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+
+            {/* How it works */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.05 }}
+              className="rounded-xl p-6"
+              style={{ background: "#0a1628", border: "1px solid rgba(37,99,235,0.15)" }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-widest mb-5" style={{ color: "#475569" }}>
+                What happens when you verify
+              </p>
+              <div className="space-y-5">
+                {[
+                  { step: "1", title: "OCR reads the certificate", desc: "Google Cloud Vision extracts the fields and the hidden Cert ID embedded in the document." },
+                  { step: "2", title: "Blockchain lookup", desc: "The canonical hash is checked against our Ethereum smart contract." },
+                  { step: "3", title: "AI visual scan", desc: "An EfficientNet+DINOv2 model checks for signs of tampering or forgery." },
+                ].map(({ step, title, desc }) => (
+                  <div key={step} className="flex gap-4">
+                    <span
+                      className="text-xs font-mono mt-0.5 shrink-0 w-5 text-right"
+                      style={{ color: "rgba(37,99,235,0.4)" }}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      View on Etherscan
-                    </a>
-                  )}
+                      {step}.
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
+                      <p className="text-xs leading-relaxed" style={{ color: "#475569" }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Camera — prominent */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.12 }}
+              className="rounded-xl p-6 flex flex-col"
+              style={{ background: "#0a1628", border: "1px solid rgba(37,99,235,0.15)" }}
+            >
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
+                <div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: "rgba(37,99,235,0.1)", border: "1px solid rgba(37,99,235,0.2)" }}
+                >
+                  <Camera className="w-8 h-8" style={{ color: "#60a5fa" }} />
+                </div>
+                <h3
+                  className="text-lg font-bold text-white mb-2"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                >
+                  Have the physical document?
+                </h3>
+                <p className="text-sm mb-6 max-w-[240px]" style={{ color: "#64748b", lineHeight: 1.6 }}>
+                  No scan or digital copy needed — use your camera to capture it directly.
+                </p>
+                <button
+                  onClick={() => setShowCamera(true)}
+                  className="flex items-center gap-2.5 px-6 py-3 rounded-lg text-sm font-semibold text-white transition-all"
+                  style={{ background: "#2563eb" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#1d4ed8"}
+                  onMouseLeave={e => e.currentTarget.style.background = "#2563eb"}
+                >
+                  <Camera className="w-4 h-4" />
+                  Open Camera
+                </button>
+              </div>
+              <div
+                className="mt-4 pt-4"
+                style={{ borderTop: "1px solid rgba(37,99,235,0.1)" }}
+              >
+                <p className="text-[11px] mb-2.5" style={{ color: "#334155" }}>Tips for a good capture</p>
+                <div className="space-y-1.5">
+                  {[
+                    "Good lighting, no glare",
+                    "All four edges in frame",
+                    "Hold steady — highest resolution possible",
+                  ].map(tip => (
+                    <p key={tip} className="text-[11px] flex gap-2" style={{ color: "#475569" }}>
+                      <span style={{ color: "#1d4ed8" }}>—</span>
+                      {tip}
+                    </p>
+                  ))}
                 </div>
               </div>
-            )}
+            </motion.div>
 
-            <button className="flex items-center gap-2 bg-[#043682] text-white px-6 py-3 rounded-lg font-semibold transition-all hover:bg-[#032c68]">
-              <Download className="w-5 h-5" />
-              Download Verification Report
-            </button>
           </div>
-        )}
+        </div>
+
+        {/* ── Verify button ────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
+          className="mb-8"
+        >
+          <button
+            onClick={handleVerify}
+            style={{
+              width: "100%",
+              padding: "15px",
+              borderRadius: 10,
+              fontSize: 15,
+              fontWeight: 700,
+              fontFamily: "'Syne', sans-serif",
+              letterSpacing: "0.01em",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
+              cursor: btnActive ? "pointer" : "not-allowed",
+              transition: "all 0.2s ease",
+              background: btnActive ? "#22c55e" : "rgba(255,255,255,0.04)",
+              color: btnActive ? "white" : "rgba(255,255,255,0.15)",
+              border: btnActive ? "none" : "1px solid rgba(255,255,255,0.06)",
+              boxShadow: "none",
+            }}
+            onMouseEnter={e => { if (btnActive) e.currentTarget.style.boxShadow = "0 0 28px rgba(34,197,94,0.22)"; }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
+          >
+            {isLoading ? (
+              <>
+                <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)" strokeWidth="3" />
+                  <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+                Verifying…
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-4 h-4" />
+                {canVerify ? "Run Verification" : "Upload a certificate to begin"}
+              </>
+            )}
+          </button>
+        </motion.div>
+
+        {/* ── Error state ──────────────────────────────────────── */}
+        <AnimatePresence>
+          {verificationStatus === "error" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-xl mb-8 text-sm"
+              style={{
+                background: "rgba(239,68,68,0.07)",
+                border: "1px solid rgba(239,68,68,0.2)",
+                color: "#f87171",
+              }}
+            >
+              <XCircle className="w-4 h-4 shrink-0" />
+              {errorMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Result panel ─────────────────────────────────────── */}
+        <AnimatePresence>
+          {showResult && (
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="rounded-xl overflow-hidden"
+              style={{
+                background: "#0a1628",
+                border: "1px solid rgba(37,99,235,0.2)",
+                borderLeft: `4px solid ${config.color}`,
+              }}
+            >
+              {/* Verdict header */}
+              <div className="px-7 py-6" style={{ borderBottom: "1px solid rgba(37,99,235,0.1)" }}>
+                <div className="flex items-start gap-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+                    style={{ background: `${config.color}18`, border: `1px solid ${config.color}35` }}
+                  >
+                    <span style={{ color: config.color }}>{config.icon}</span>
+                  </div>
+                  <div>
+                    <h2
+                      className="text-xl font-bold mb-1"
+                      style={{ fontFamily: "'Syne', sans-serif", color: config.color }}
+                    >
+                      {config.title}
+                    </h2>
+                    <p className="text-sm" style={{ color: "#94a3b8" }}>{config.message}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-7 py-6 space-y-5">
+
+                {/* Signal cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  {/* AI Score */}
+                  {result.aiScore !== null ? (
+                    <div
+                      className="p-5 rounded-xl"
+                      style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.12)" }}
+                    >
+                      <p className="text-xs font-semibold mb-4" style={{ color: "#475569" }}>
+                        AI Visual Score
+                      </p>
+                      <div className="flex items-baseline gap-3 mb-3">
+                        <span className="text-3xl font-black text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          {(result.aiScore * 100).toFixed(0)}%
+                        </span>
+                        <span
+                          className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                          style={result.aiScore >= 0.7
+                            ? { background: "rgba(34,197,94,0.12)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.2)" }
+                            : { background: "rgba(239,68,68,0.12)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}
+                        >
+                          {result.aiScore >= 0.7 ? "Authentic" : "Suspicious"}
+                        </span>
+                      </div>
+                      <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                        <div
+                          className="h-1 rounded-full transition-all"
+                          style={{
+                            width: `${result.aiScore * 100}%`,
+                            background: result.aiScore >= 0.7
+                              ? "linear-gradient(90deg, #16a34a, #22c55e)"
+                              : "linear-gradient(90deg, #dc2626, #ef4444)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="p-5 rounded-xl flex items-center justify-center"
+                      style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.12)" }}
+                    >
+                      <p className="text-sm italic" style={{ color: "rgba(255,255,255,0.2)" }}>
+                        AI score skipped in manual test mode
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Blockchain record */}
+                  <div
+                    className="p-5 rounded-xl"
+                    style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.12)" }}
+                  >
+                    <p className="text-xs font-semibold mb-4" style={{ color: "#475569" }}>
+                      Blockchain Record
+                    </p>
+                    <div className="space-y-2.5">
+                      <div className="flex items-center gap-2.5">
+                        {result.issuedAt
+                          ? <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#22c55e" }} />
+                          : <XCircle className="w-4 h-4 shrink-0" style={{ color: "#ef4444" }} />}
+                        <span className="text-sm" style={{ color: "#94a3b8" }}>
+                          {result.issuedAt
+                            ? `Issued ${new Date(result.issuedAt).toLocaleDateString()}`
+                            : "Not found on chain"}
+                        </span>
+                      </div>
+                      {result.revokedAt && (
+                        <div className="flex items-center gap-2.5">
+                          <XCircle className="w-4 h-4 shrink-0" style={{ color: "#ef4444" }} />
+                          <span className="text-sm" style={{ color: "#94a3b8" }}>
+                            Revoked {new Date(result.revokedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      )}
+                      {result.rsaVerified && (
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle className="w-4 h-4 shrink-0" style={{ color: "#22c55e" }} />
+                          <span className="text-sm" style={{ color: "#94a3b8" }}>RSA signature verified</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Credential details */}
+                {result.credential && (
+                  <div
+                    className="p-5 rounded-xl"
+                    style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.12)" }}
+                  >
+                    <p className="text-xs font-semibold mb-4" style={{ color: "#475569" }}>
+                      Credential Details
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { label: "Institution", value: result.credential.university.name },
+                        { label: "Degree", value: result.credential.degreeName },
+                        ...(result.credential.program ? [{ label: "Program", value: result.credential.program }] : []),
+                        { label: "Awarded", value: new Date(result.credential.awardedDate).toLocaleDateString() },
+                      ].map(({ label, value }) => (
+                        <div key={label}>
+                          <p className="text-xs mb-1" style={{ color: "#334155" }}>{label}</p>
+                          <p className="text-sm font-semibold text-white">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cryptographic proof */}
+                {result.issuedAt && (
+                  <div
+                    className="p-5 rounded-xl"
+                    style={{ background: "#0d1f3c", border: "1px solid rgba(37,99,235,0.12)" }}
+                  >
+                    <p className="text-xs font-semibold mb-4" style={{ color: "#475569" }}>
+                      Cryptographic Proof
+                    </p>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs mb-2" style={{ color: "#334155" }}>
+                          Canonical Hash (SHA-256)
+                        </p>
+                        <div
+                          className="font-mono text-xs px-4 py-3 rounded-lg break-all"
+                          style={{ background: "#020817", border: "1px solid rgba(37,99,235,0.15)", color: "#60a5fa" }}
+                        >
+                          {result.canonicalHash}
+                        </div>
+                      </div>
+                      {result.etherscanUrl && (
+                        <a
+                          href={result.etherscanUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-70"
+                          style={{ color: "#60a5fa" }}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          View on Etherscan
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                    style={{
+                      border: "1px solid rgba(37,99,235,0.25)",
+                      color: "#60a5fa",
+                      background: "transparent",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(37,99,235,0.07)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download Report
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {showCamera && (

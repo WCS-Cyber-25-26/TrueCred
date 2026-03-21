@@ -21,10 +21,16 @@ const studentService = {
 
         return student;
     },
-    async getStudentCredentials(studentId) {
+    async getStudentCredentials(userId) {
+        const student = await prisma.student.findUnique({
+            where: { userId },
+            select: { id: true },
+        });
+        if (!student) return [];
+
         const credentials = await prisma.credential.findMany({
             where: {
-                studentId: studentId,
+                studentId: student.id,
             },
             select: {
                 id: true,
