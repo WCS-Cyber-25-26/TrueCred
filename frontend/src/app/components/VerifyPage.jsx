@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Upload, Camera, CheckCircle, XCircle, AlertCircle, Download, ExternalLink } from "lucide-react";
+import CameraCapture from "./CameraCapture";
 
 const VERDICT_CONFIG = {
   verified: {
@@ -51,6 +52,14 @@ export default function VerifyPage() {
   const [verificationStatus, setVerificationStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+
+  const handleCameraCapture = (blob) => {
+    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+    setUploadedFile(file);
+    setVerificationStatus("idle");
+    setResult(null);
+  };
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -283,9 +292,12 @@ export default function VerifyPage() {
                 Take a picture
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                No digital file? Use your device's camera to capture a clear photo of the original certificate.
+                No digital file? Use your devices camera to capture a clear photo of the original certificate.
               </p>
-              <button className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold transition-all hover:border-[#043682] hover:text-[#043682] active:scale-95">
+              <button
+                onClick={() => setShowCamera(true)}
+                className="bg-white border-2 border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold transition-all hover:border-[#043682] hover:text-[#043682] active:scale-95"
+              >
                 Open Camera
               </button>
             </div>
@@ -478,6 +490,14 @@ export default function VerifyPage() {
           </div>
         )}
       </div>
+
+      {showCamera && (
+        <CameraCapture
+          open={showCamera}
+          onClose={() => setShowCamera(false)}
+          onCapture={handleCameraCapture}
+        />
+      )}
     </div>
   );
 }
