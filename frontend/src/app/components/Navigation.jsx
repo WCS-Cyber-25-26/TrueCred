@@ -6,34 +6,21 @@ import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 
-function LogoWithFallback() {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return (
-      <div className="flex items-center gap-2">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z"
-            stroke="#60a5fa"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path d="M9 12L11 14L15 10" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <span className="font-display font-bold text-white text-2xl tracking-tight">TrueCred</span>
-      </div>
-    );
-  }
-
+function Logo() {
   return (
-    <img
-      src="/logo.png"
-      alt="TrueCred Logo"
-      className="h-12 w-auto object-contain"
-      onError={() => setFailed(true)}
-    />
+    <div className="flex items-center gap-2">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z"
+          stroke="#60a5fa"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M9 12L11 14L15 10" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className="font-display font-bold text-white text-xl tracking-tight">TrueCred</span>
+    </div>
   );
 }
 
@@ -88,9 +75,7 @@ export default function Navigation() {
           className="flex items-center gap-2 flex-shrink-0"
           onClick={(e) => scrollToSection(e, "home")}
         >
-          <div className="[&_img]:h-8 [&_img]:md:h-12 [&_span]:text-xl [&_span]:md:text-2xl">
-            <LogoWithFallback />
-          </div>
+          <Logo />
         </Link>
 
         {/* Center Links */}

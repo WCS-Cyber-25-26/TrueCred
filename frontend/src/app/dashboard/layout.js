@@ -6,24 +6,15 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut } from 'lucide-react';
 
-function ShieldIcon() {
+function Logo() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z"
-        stroke="#60a5fa"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M9 12L11 14L15 10"
-        stroke="#60a5fa"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div className="flex items-center gap-2">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L3 7V12C3 16.55 7.08 20.74 12 22C16.92 20.74 21 16.55 21 12V7L12 2Z" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 12L11 14L15 10" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className="font-bold text-white text-xl tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>TrueCred</span>
+    </div>
   );
 }
 
@@ -54,14 +45,8 @@ export default function DashboardLayout({ children }) {
         }}
       >
         {/* Logo */}
-        <Link href="/" className="inline-flex items-center gap-2">
-          <ShieldIcon />
-          <span
-            className="font-bold text-white text-xl tracking-tight"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            TrueCred
-          </span>
+        <Link href="/" className="inline-flex items-center">
+          <Logo />
         </Link>
 
         {/* Right side */}
