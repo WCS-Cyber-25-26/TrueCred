@@ -85,7 +85,11 @@ const verifyService = {
           awardedDate: credential.awardedDate,
           university: { name: credential.university.name },
         } : null,
-        etherscanUrl: credential?.txHash ? `https://sepolia.etherscan.io/tx/${credential.txHash}` : null,
+        etherscanUrl: credential?.revocation?.txHash
+          ? `https://sepolia.etherscan.io/tx/${credential.revocation.txHash}`
+          : credential?.txHash
+          ? `https://sepolia.etherscan.io/tx/${credential.txHash}`
+          : null,
         rsaSignature: credential?.rsaSignature || null,
         universityPublicKey: credential?.university?.rsaPublicKey || null,
         rsaVerified,
@@ -228,7 +232,9 @@ const verifyService = {
               university: { name: credential.university.name },
             }
           : null,
-        etherscanUrl: credential?.txHash
+        etherscanUrl: credential?.revocation?.txHash
+          ? `https://sepolia.etherscan.io/tx/${credential.revocation.txHash}`
+          : credential?.txHash
           ? `https://sepolia.etherscan.io/tx/${credential.txHash}`
           : null,
         rsaSignature: credential?.rsaSignature || null,
