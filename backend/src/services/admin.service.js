@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../../prisma/client.js';
 import { generateInviteToken, hashInviteToken } from '../utils/token.js';
-import { getPrivateKey } from '../utils/vault.js';
+import { getPrivateKey, storeRsaPrivateKey, hasRsaPrivateKey } from '../utils/vault.js';
 import { registerUniversityOnChain, fundWallet } from '../utils/blockchain.js';
 
 const INVITE_EXPIRY_HOURS = 24;
@@ -166,15 +166,53 @@ const adminService = {
             throw new Error('No wallet key found in Vault. Ask the university to log in first.');
         }
 
-        await registerUniversityOnChain(university.blockchainId, universityId, university.name);
-        await fundWallet(university.blockchainId);
+        // Skip blockchain registration if already registered
+        if (!university.chainEnabled) {
+            await registerUniversityOnChain(university.blockchainId, universityId, university.name);
+            await fundWallet(university.blockchainId);
+        }
 
-        await prisma.university.update({
-            where: { id: universityId },
-            data: { chainEnabled: true },
-        });
+        // Skip RSA generation if key already exists in Vault
+        const rsaKeyExists = await hasRsaPrivateKey(universityId);
+        if (!rsaKeyExists) {
+            const { publicKey, privateKey: rsaPrivateKey } = crypto.generateKeyPairSync('rsa', {
+                modulusLength: 4096,
+            });
+            const rsaPublicKeyPem = publicKey.export({ type: 'spki', format: 'pem' });
+            const rsaPrivateKeyPem = rsaPrivateKey.export({ type: 'pkcs8', format: 'pem' });
+
+            await storeRsaPrivateKey(universityId, rsaPrivateKeyPem);
+            await prisma.university.update({
+                where: { id: universityId },
+                data: { chainEnabled: true, rsaPublicKey: rsaPublicKeyPem },
+            });
+        } else {
+            await prisma.university.update({
+                where: { id: universityId },
+                data: { chainEnabled: true },
+            });
+        }
 
         return { blockchainId: university.blockchainId, chainEnabled: true };
+    },
+
+    async repairRsaKeys(universityId) {
+        const university = await prisma.university.findUnique({ where: { id: universityId } });
+        if (!university) throw new Error('University not found');
+
+        const { publicKey, privateKey: rsaPrivateKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 4096,
+        });
+        const rsaPublicKeyPem = publicKey.export({ type: 'spki', format: 'pem' });
+        const rsaPrivateKeyPem = rsaPrivateKey.export({ type: 'pkcs8', format: 'pem' });
+
+        await storeRsaPrivateKey(universityId, rsaPrivateKeyPem);
+        await prisma.university.update({
+            where: { id: universityId },
+            data: { rsaPublicKey: rsaPublicKeyPem },
+        });
+
+        return { repaired: true };
     }
 }
 

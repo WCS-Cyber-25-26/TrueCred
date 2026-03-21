@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUniversities, revokeUniversity, sendInvite, updateUniversity, getUniversityById, enableChain } from '../controllers/admin.controller.js';
+import { getAllUniversities, revokeUniversity, sendInvite, updateUniversity, getUniversityById, enableChain, repairRsaKeys } from '../controllers/admin.controller.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
 
@@ -11,5 +11,6 @@ router.patch('/universities/:id', authMiddleware, adminMiddleware, updateUnivers
 router.get('/universities', authMiddleware, adminMiddleware, getAllUniversities);
 router.get('/universities/:id', authMiddleware, adminMiddleware, getUniversityById);
 router.post('/universities/:id/enable-chain', authMiddleware, adminMiddleware, enableChain);
+router.post('/universities/:id/repair-rsa-keys', authMiddleware, adminMiddleware, repairRsaKeys);
 
 export default router;

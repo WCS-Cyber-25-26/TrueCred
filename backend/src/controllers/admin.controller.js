@@ -62,3 +62,12 @@ export const enableChain = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const repairRsaKeys = async (req, res) => {
+    try {
+        const result = await adminService.repairRsaKeys(req.params.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

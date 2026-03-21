@@ -43,6 +43,7 @@ model University {
   verificationNote      String?
   chainEnabled          Boolean                @default(false)
   blockchainId          String?
+  rsaPublicKey          String?
   createdAt             DateTime               @default(now())
   userId                String                 @unique
   user                  User                   @relation(fields: [userId], references: [id])
@@ -85,18 +86,20 @@ model Student {
 }
 
 model Credential {
-  id            String                @id @default(uuid())
-  canonicalHash String
-  degreeName    String
-  program       String?
-  awardedDate   DateTime
-  createdAt     DateTime              @default(now())
-  txHash        String?
-  studentId     String
-  universityId  String
-  student       Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  university    University            @relation(fields: [universityId], references: [id])
-  revocation    CredentialRevocation?
+  id               String                @id @default(uuid())
+  canonicalHash    String
+  degreeName       String
+  program          String?
+  awardedDate      DateTime
+  createdAt        DateTime              @default(now())
+  txHash           String?
+  hiddenIdentifier String?               @unique
+  rsaSignature     String?
+  studentId        String
+  universityId     String
+  student          Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university       University            @relation(fields: [universityId], references: [id])
+  revocation       CredentialRevocation?
 
   @@unique([canonicalHash, universityId])
   @@index([studentId])

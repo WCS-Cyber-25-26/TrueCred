@@ -94,12 +94,6 @@ export function hashCanonicalString(canonicalString) {
 }
 
 
-//Create public and private keys using rsa
-export const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 4096 })
-
-console.log(privateKey.export({ type: 'pkcs8', format: "pem" }));
-console.log(publicKey.export({ type: "spki", format: "pem" }));
-
 export function signStudentRecord(hash, privateKey) {
 
   let signature = crypto.sign("sha256", Buffer.from(hash, "utf8"), {

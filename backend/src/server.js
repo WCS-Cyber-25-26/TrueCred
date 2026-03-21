@@ -8,13 +8,16 @@ import studentRoutes from './routes/student.route.js';
 import adminRoutes from './routes/admin.route.js';
 import UniversityRoutes from './routes/university.route.js';
 import credentialRoutes from './routes/credential.route.js';
+import verifyRoutes from './routes/verify.route.js';
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 
 const app = express();
-app.use(express.json());
 
+app.use(morgan('dev'));
+app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -26,6 +29,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/universities', UniversityRoutes);
 app.use('/api/universities/credentials', credentialRoutes);
+app.use('/api/verify', verifyRoutes);
 
 const PORT = process.env.PORT || 8080;
 

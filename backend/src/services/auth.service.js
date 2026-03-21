@@ -1,7 +1,8 @@
+import crypto from 'crypto';
 import prisma from '../../prisma/client.js';
 import bcrypt from 'bcrypt';
 import {signJwt} from '../utils/jwt.js';
-import { hasPrivateKey, storePrivateKey, getPrivateKey } from '../utils/vault.js';
+import { hasPrivateKey, storePrivateKey, getPrivateKey, hasRsaPrivateKey, storeRsaPrivateKey } from '../utils/vault.js';
 import { generateWallet, registerUniversityOnChain, fundWallet } from '../utils/blockchain.js';
 
 async function ensureWallet(userId) {
@@ -23,7 +24,18 @@ async function ensureWallet(userId) {
   console.log(`[ensureWallet] Key in Vault: ${keyExists}`);
 
   if (university.chainEnabled && keyExists) {
-    console.log(`[ensureWallet] Already fully set up — skipping`);
+    console.log(`[ensureWallet] Wallet set up — checking RSA key`);
+    const rsaKeyExists = await hasRsaPrivateKey(university.id);
+    if (!rsaKeyExists) {
+      console.log(`[ensureWallet] RSA key missing — generating now`);
+      const { publicKey, privateKey: rsaPrivateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 4096 });
+      await storeRsaPrivateKey(university.id, rsaPrivateKey.export({ type: 'pkcs8', format: 'pem' }));
+      await prisma.university.update({
+        where: { id: university.id },
+        data: { rsaPublicKey: publicKey.export({ type: 'spki', format: 'pem' }) },
+      });
+      console.log(`[ensureWallet] RSA key generated and stored`);
+    }
     return;
   }
 
@@ -54,6 +66,19 @@ async function ensureWallet(userId) {
     data: { blockchainId: address, chainEnabled: true },
   });
   console.log(`[ensureWallet] Done — university ${university.id} is chain-enabled`);
+
+  // Ensure RSA signing key exists — generate once and store if missing
+  const rsaKeyExists = await hasRsaPrivateKey(university.id);
+  if (!rsaKeyExists) {
+    console.log(`[ensureWallet] RSA key missing — generating now`);
+    const { publicKey, privateKey: rsaPrivateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 4096 });
+    await storeRsaPrivateKey(university.id, rsaPrivateKey.export({ type: 'pkcs8', format: 'pem' }));
+    await prisma.university.update({
+      where: { id: university.id },
+      data: { rsaPublicKey: publicKey.export({ type: 'spki', format: 'pem' }) },
+    });
+    console.log(`[ensureWallet] RSA key generated and stored`);
+  }
 }
 
 const authService = {

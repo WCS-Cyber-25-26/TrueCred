@@ -47,3 +47,23 @@ export async function getPrivateKey(universityId) {
   const res = await client.read(`secret/data/universities/${universityId}`);
   return res.data.data.privateKey;
 }
+
+export async function hasRsaPrivateKey(universityId) {
+  try {
+    await client.read(`secret/data/universities/${universityId}/rsa-private-key`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function storeRsaPrivateKey(universityId, pemKey) {
+  await client.write(`secret/data/universities/${universityId}/rsa-private-key`, {
+    data: { rsaPrivateKey: pemKey },
+  });
+}
+
+export async function getRsaPrivateKey(universityId) {
+  const res = await client.read(`secret/data/universities/${universityId}/rsa-private-key`);
+  return res.data.data.rsaPrivateKey;
+}

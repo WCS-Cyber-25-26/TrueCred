@@ -1,5 +1,7 @@
 node_modules
 .env
+.env.local
+.env.*.local
 .DS_Store
 dist
 build
@@ -13,3 +15,17 @@ certificate-generator/assets/
 
 certificate-generator/templates/fonts
 certificate-generator/templates/__pycache__
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# ML model weights (large binary files)
+*.pt
+*.pth
+*.ckpt
+
+# Service secrets
+secrets/

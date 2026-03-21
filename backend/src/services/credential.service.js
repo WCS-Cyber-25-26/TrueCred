@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 import prisma from '../../prisma/client.js';
-import { computeCanonicalHash, issueCredentialOnChain, revokeCredentialOnChain, verifyCredentialOnChain } from '../utils/blockchain.js';
-import { getPrivateKey } from '../utils/vault.js';
+import { issueCredentialOnChain, revokeCredentialOnChain, verifyCredentialOnChain } from '../utils/blockchain.js';
+import { getPrivateKey, getRsaPrivateKey } from '../utils/vault.js';
+import { canonicalize, hashCanonicalString, signStudentRecord } from '../../services/canonical-service/canonicalize.js';
 
 // pseudonymousId holds the student's school email — unique per student
 async function findOrCreateStudent(schoolEmail, fullName) {
@@ -19,6 +20,12 @@ async function findOrCreateStudent(schoolEmail, fullName) {
   });
 }
 
+function generateHiddenIdentifier() {
+  const hex = crypto.randomBytes(4).toString('hex').toUpperCase();
+  const parts = hex.match(/.{4}/g);
+  return `TC-${parts[0]}-${parts[1]}`;
+}
+
 const credentialService = {
   async issueCredential({ userId, schoolEmail, studentFullName, degreeName, program, awardedDate }) {
     const university = await prisma.university.findUnique({ where: { userId } });
@@ -32,13 +39,22 @@ const credentialService = {
 
     const student = await findOrCreateStudent(schoolEmail, studentFullName);
 
-    const canonicalHash = computeCanonicalHash({
-      studentPseudonymousId: student.pseudonymousId,
-      degreeName,
-      program,
-      awardedDate,
-      universityDomain: university.domain,
+    // Generate a unique credential identifier printed on the PDF
+    const hiddenIdentifier = generateHiddenIdentifier();
+
+    // Format date as YYYY-MM-DD for canonical service
+    const awardedDateStr = new Date(awardedDate).toISOString().split('T')[0];
+
+    // Compute canonical hash using canonical-service (SHA-256)
+    const canonicalString = canonicalize({
+      university: university.name,
+      studentName: student.fullName,
+      degree: degreeName,
+      degreeAwardedDate: awardedDateStr,
+      hiddenIdentifier,
     });
+    const hash = hashCanonicalString(canonicalString);
+    const canonicalHash = hash; // store without 0x prefix in DB
 
     const existing = await prisma.credential.findFirst({
       where: { canonicalHash, universityId: university.id },
@@ -49,12 +65,26 @@ const credentialService = {
       throw err;
     }
 
+    // RSA sign the canonical hash (requires university to have chain enabled with RSA key)
+    let rsaSignature = null;
+    if (university.chainEnabled) {
+      try {
+        const rsaPrivateKey = await getRsaPrivateKey(university.id);
+        const { signature } = signStudentRecord(hash, rsaPrivateKey);
+        rsaSignature = signature;
+      } catch (e) {
+        console.warn('RSA signing skipped (key not found):', e.message);
+      }
+    }
+
     const credential = await prisma.credential.create({
       data: {
         canonicalHash,
         degreeName,
         program,
         awardedDate: new Date(awardedDate),
+        hiddenIdentifier,
+        rsaSignature,
         studentId: student.id,
         universityId: university.id,
       },
@@ -64,7 +94,7 @@ const credentialService = {
     if (university.chainEnabled) {
       try {
         const privateKey = await getPrivateKey(university.id);
-        txHash = await issueCredentialOnChain(privateKey, canonicalHash, credential.id);
+        txHash = await issueCredentialOnChain(privateKey, '0x' + canonicalHash, credential.id);
         await prisma.credential.update({ where: { id: credential.id }, data: { txHash } });
       } catch (e) {
         console.error('On-chain issuance failed, credential saved without txHash:', e.message);
@@ -94,7 +124,7 @@ const credentialService = {
     if (credential.university.chainEnabled) {
       try {
         const privateKey = await getPrivateKey(credential.university.id);
-        txHash = await revokeCredentialOnChain(privateKey, credential.canonicalHash);
+        txHash = await revokeCredentialOnChain(privateKey, '0x' + credential.canonicalHash);
       } catch (e) {
         console.error('On-chain revocation failed:', e.message);
       }
@@ -116,7 +146,7 @@ const credentialService = {
 
     let onChain = null;
     if (credential.university.chainEnabled) {
-      onChain = await verifyCredentialOnChain(credential.canonicalHash);
+      onChain = await verifyCredentialOnChain('0x' + credential.canonicalHash);
     }
 
     return {
@@ -139,7 +169,7 @@ const credentialService = {
     let chainRevoked = null;
 
     if (credential.university.chainEnabled) {
-      const onChain = await verifyCredentialOnChain(credential.canonicalHash);
+      const onChain = await verifyCredentialOnChain('0x' + credential.canonicalHash);
       chainRevoked = onChain.revoked;
     }
 
