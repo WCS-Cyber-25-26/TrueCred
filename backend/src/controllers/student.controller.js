@@ -11,7 +11,7 @@ export const getStudent = async (req, res) => {
 
 export const getStudentCredentials = async (req, res) => {
   try {
-    const studentCredential = await studentService.getStudentCredential(req.user.id);
+    const studentCredential = await studentService.getStudentCredentials(req.user.id);
     res.json(studentCredential);
   } catch (err) {
     res.status(400).json({ error: err.message });
