@@ -135,7 +135,7 @@ export default function AboutPage() {
       </div>
 
       {/* ── Mission & Who We Are ────────────────────────────── */}
-      <section className="py-24 px-6 md:px-12">
+      <section id="how-it-works" className="py-24 px-6 md:px-12">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
           {/* Left: Mission + Who We Are */}

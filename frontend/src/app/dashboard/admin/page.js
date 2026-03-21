@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { apiFetch } from '@/lib/api';
 import dynamic from 'next/dynamic';
 import {
@@ -152,7 +153,12 @@ export default function AdminDashboard() {
       <div className="max-w-[1440px] mx-auto px-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <motion.div
+          className="flex items-center justify-between mb-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        >
           <div>
             <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
               Admin Dashboard
@@ -170,15 +176,18 @@ export default function AdminDashboard() {
           >
             <Plus className="w-4 h-4" /> Invite University
           </button>
-        </div>
+        </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {stats.map(({ label, value, icon: Icon }) => (
-            <div
+          {stats.map(({ label, value, icon: Icon }, i) => (
+            <motion.div
               key={label}
               className="rounded-xl p-5"
               style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 + i * 0.07, ease: 'easeOut' }}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -191,12 +200,17 @@ export default function AdminDashboard() {
                 </div>
                 <Icon className="w-5 h-5 mt-1" style={{ color: 'rgba(96,165,250,0.4)' }} />
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Blockchain Network Visualization */}
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.42, ease: 'easeOut' }}
+        >
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
@@ -230,10 +244,16 @@ export default function AdminDashboard() {
               <BlockchainGraph universities={universities} />
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Universities Table */}
-        <div className="rounded-xl overflow-hidden" style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.55, ease: 'easeOut' }}
+          className="rounded-xl overflow-hidden"
+          style={{ background: '#0a1628', border: '1px solid rgba(37,99,235,0.2)' }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
@@ -327,7 +347,7 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* University Detail Drawer */}

@@ -76,7 +76,7 @@ export default function TrueCredHero() {
               Verify a Certificate
             </Link>
             <a
-              href="#how-it-works"
+              href="/about#how-it-works"
               className="flex w-full items-center justify-center gap-2 transition-colors sm:w-auto"
               style={{ color: "rgba(255,255,255,0.7)" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}

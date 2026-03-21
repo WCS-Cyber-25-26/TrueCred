@@ -81,19 +81,21 @@ export default function Navigation() {
         }`}
       style={{ backgroundColor: "#020817" }}
     >
-      <div className="max-w-[1440px] mx-auto px-6 md:px-8 flex items-center h-16">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 flex items-center h-16">
         {/* Logo */}
         <Link
           href="/"
           className="flex items-center gap-2 flex-shrink-0"
           onClick={(e) => scrollToSection(e, "home")}
         >
-          <LogoWithFallback />
+          <div className="[&_img]:h-8 [&_img]:md:h-12 [&_span]:text-xl [&_span]:md:text-2xl">
+            <LogoWithFallback />
+          </div>
         </Link>
 
         {/* Center Links */}
-        <div className="flex-1 flex items-center justify-center gap-8">
-          <NavLink href="/about">About Us</NavLink>
+        <div className="flex-1 flex items-center justify-center gap-5 md:gap-8">
+          <NavLink href="/about">About</NavLink>
           <NavLink href="/verify">Verify</NavLink>
         </div>
 
@@ -102,14 +104,14 @@ export default function Navigation() {
           {user ? (
             <Link
               href={dashboardHref}
-              className="border border-blue-600 text-blue-400 px-5 py-2 rounded-md text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white"
+              className="border border-blue-600 text-blue-400 px-3 py-1.5 md:px-5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white whitespace-nowrap"
             >
-              My Dashboard
+              Dashboard
             </Link>
           ) : (
             <Link
               href="/login"
-              className="border border-blue-600 text-blue-400 px-5 py-2 rounded-md text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white"
+              className="border border-blue-600 text-blue-400 px-3 py-1.5 md:px-5 md:py-2 rounded-md text-xs md:text-sm font-semibold transition-all duration-200 hover:bg-blue-600 hover:text-white"
             >
               Login
             </Link>

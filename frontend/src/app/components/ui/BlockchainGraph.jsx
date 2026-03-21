@@ -117,7 +117,11 @@ export default function BlockchainGraph({ universities }) {
     // Pre-tick to get a stable initial layout
     for (let i = 0; i < 300; i++) simulation.tick();
 
-    // Links — glow layer
+    // Hub appears first; university nodes stagger after it
+    const NODE_DELAY = (d, i) => i === 0 ? 0 : 120 + (i - 1) * 90;
+    const LINK_DELAY = (_, i) => 300 + i * 70;
+
+    // Links — glow layer (start invisible, fade in after nodes)
     const linkGroup = svg.append("g");
 
     const linkGlow = linkGroup.selectAll("line.link-glow")
@@ -127,7 +131,11 @@ export default function BlockchainGraph({ universities }) {
       .attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y)
       .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y)
       .attr("stroke", (d) => d.chainEnabled ? "rgba(59,130,246,0.15)" : "transparent")
-      .attr("stroke-width", 6);
+      .attr("stroke-width", 6)
+      .attr("opacity", 0)
+      .each(function (d, i) {
+        d3.select(this).transition().delay(LINK_DELAY(d, i)).duration(400).attr("opacity", 1);
+      });
 
     // Links — main
     const linkMain = linkGroup.selectAll("line.link-main")
@@ -138,7 +146,11 @@ export default function BlockchainGraph({ universities }) {
       .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y)
       .attr("stroke", (d) => d.chainEnabled ? "rgba(59,130,246,0.5)" : "rgba(255,255,255,0.08)")
       .attr("stroke-width", (d) => d.chainEnabled ? 1.5 : 1)
-      .attr("stroke-dasharray", (d) => d.chainEnabled ? "none" : "4 4");
+      .attr("stroke-dasharray", (d) => d.chainEnabled ? "none" : "4 4")
+      .attr("opacity", 0)
+      .each(function (d, i) {
+        d3.select(this).transition().delay(LINK_DELAY(d, i)).duration(400).attr("opacity", 1);
+      });
 
     // Links — animated dash for on-chain
     const linkAnimated = linkGroup.selectAll("line.link-animated")
@@ -151,15 +163,19 @@ export default function BlockchainGraph({ universities }) {
       .attr("stroke-width", 1.5)
       .attr("stroke-dasharray", "6 20")
       .attr("stroke-dashoffset", 0)
-      .each(function () {
+      .attr("opacity", 0)
+      .each(function (d, i) {
         const el = d3.select(this);
-        function animate() {
-          el.attr("stroke-dashoffset", 0)
-            .transition().duration(2000).ease(d3.easeLinear)
-            .attr("stroke-dashoffset", -26)
-            .on("end", animate);
-        }
-        animate();
+        el.transition().delay(LINK_DELAY(d, i)).duration(400).attr("opacity", 1)
+          .on("end", function () {
+            function animate() {
+              el.attr("stroke-dashoffset", 0)
+                .transition().duration(2000).ease(d3.easeLinear)
+                .attr("stroke-dashoffset", -26)
+                .on("end", animate);
+            }
+            animate();
+          });
       });
 
     // Nodes
@@ -170,8 +186,18 @@ export default function BlockchainGraph({ universities }) {
       .data(simNodes)
       .enter().append("g")
       .attr("class", "node")
-      .attr("transform", (d) => `translate(${d.x},${d.y})`)
+      .attr("transform", (d) => `translate(${d.x},${d.y}) scale(0)`)
       .style("cursor", "grab");
+
+    // Staggered pop-in: scale 0 → 1 with a slight overshoot
+    nodeEnter.each(function (d, i) {
+      d3.select(this)
+        .transition()
+        .delay(NODE_DELAY(d, i))
+        .duration(420)
+        .ease(d3.easeBackOut.overshoot(1.4))
+        .attr("transform", `translate(${d.x},${d.y}) scale(1)`);
+    });
 
     // Outer dashed ring (hub only)
     nodeEnter.filter((d) => d.type === "hub")
@@ -339,7 +365,7 @@ export default function BlockchainGraph({ universities }) {
         .attr("x1", (d) => d.source.x).attr("y1", (d) => d.source.y)
         .attr("x2", (d) => d.target.x).attr("y2", (d) => d.target.y);
 
-      nodeEnter.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      nodeEnter.attr("transform", (d) => `translate(${d.x},${d.y}) scale(1)`);
     }
 
     // ── Drag behavior ──
@@ -373,10 +399,13 @@ export default function BlockchainGraph({ universities }) {
 
     nodeEnter.call(drag);
 
-    // Attach tick handler and restart at low alpha (barely moves, but drag can reheat)
-    simulation.on("tick", ticked).alphaTarget(0).restart();
+    // Delay simulation restart until after the node intro animations finish
+    const simTimer = setTimeout(() => {
+      simulation.on("tick", ticked).alphaTarget(0).restart();
+    }, 300 + simNodes.length * 90 + 450);
 
     return () => {
+      clearTimeout(simTimer);
       simulation.stop();
       tooltip.remove();
     };
