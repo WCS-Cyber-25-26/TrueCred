@@ -44,17 +44,37 @@ export default function VerifyPage() {
   const [mode, setMode] = useState("upload");
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [fields, setFields] = useState(EMPTY_FIELDS);
   const [verificationStatus, setVerificationStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
 
-  const handleCameraCapture = (blob) => {
-    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  const setFile = (file) => {
     setUploadedFile(file);
     setVerificationStatus("idle");
     setResult(null);
+    if (file && file.type.startsWith("image/")) {
+      setPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const removeFile = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setUploadedFile(null);
+    setPreviewUrl(null);
+    setVerificationStatus("idle");
+    setResult(null);
+  };
+
+  const handleCameraCapture = (blob) => {
+    const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+    setFile(file);
   };
 
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
@@ -63,11 +83,11 @@ export default function VerifyPage() {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
-    if (files.length > 0) { setUploadedFile(files[0]); setVerificationStatus("idle"); setResult(null); }
+    if (files.length > 0) setFile(files[0]);
   };
   const handleFileSelect = (e) => {
     const files = e.target.files;
-    if (files && files.length > 0) { setUploadedFile(files[0]); setVerificationStatus("idle"); setResult(null); }
+    if (files && files.length > 0) setFile(files[0]);
   };
 
   const handleVerify = async () => {
@@ -259,11 +279,11 @@ export default function VerifyPage() {
               onChange={handleFileSelect}
             />
             <label
-              htmlFor="file-upload"
+              htmlFor={previewUrl ? undefined : "file-upload"}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className="block cursor-pointer"
+              className={previewUrl ? "block" : "block cursor-pointer"}
               style={{
                 borderRadius: 12,
                 border: isDragging
@@ -282,10 +302,49 @@ export default function VerifyPage() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                padding: "2.5rem 2rem",
+                padding: previewUrl ? "0" : "2.5rem 2rem",
+                overflow: "hidden",
+                position: "relative",
               }}
             >
-              {uploadedFile ? (
+              {previewUrl ? (
+                <>
+                  <img
+                    src={previewUrl}
+                    alt="Certificate preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      minHeight: 220,
+                      objectFit: "contain",
+                      borderRadius: 12,
+                      display: "block",
+                    }}
+                  />
+                  <button
+                    onClick={removeFile}
+                    style={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      background: "rgba(0,0,0,0.65)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      borderRadius: "50%",
+                      width: 28,
+                      height: 28,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "#fff",
+                      lineHeight: 1,
+                    }}
+                    aria-label="Remove file"
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : uploadedFile ? (
                 <div className="flex flex-col items-center gap-3 text-center">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center"
