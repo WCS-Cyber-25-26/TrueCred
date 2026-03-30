@@ -67,19 +67,30 @@ export default function AdminDashboard() {
     e.preventDefault();
     setInviting(true);
     setInviteError('');
+
     const res = await apiFetch('/api/admin/universities/invite', {
       method: 'POST',
       body: JSON.stringify(inviteForm),
     });
+
     if (res?.ok) {
+      const data = await res.json();
       setShowInviteDialog(false);
       setInviteForm({ name: '', domain: '', email: '' });
-      showToast('Invitation sent successfully');
       loadUniversities();
+
+      if (data.token) {
+        const link = `http://localhost:3000/universities/activate?token=${data.token}`;
+        await navigator.clipboard.writeText(link);
+        showToast('Invite sent — activation link copied to clipboard');
+      } else {
+        showToast('Invitation sent successfully');
+      }
     } else {
       const err = await res?.json().catch(() => ({}));
       setInviteError(err?.error || 'Failed to send invitation');
     }
+
     setInviting(false);
   }
 
@@ -579,9 +590,9 @@ export default function AdminDashboard() {
 
             <form onSubmit={handleInvite} className="space-y-4">
               {[
-                { label: 'University Name', key: 'name', type: 'text', placeholder: 'MIT' },
-                { label: 'Domain', key: 'domain', type: 'text', placeholder: 'mit.edu' },
-                { label: 'Admin Email', key: 'email', type: 'email', placeholder: 'admin@mit.edu' },
+                { label: 'University Name', key: 'name', type: 'text', placeholder: 'Westerrn University' },
+                { label: 'Domain', key: 'domain', type: 'text', placeholder: 'uwo.ca' },
+                { label: 'Admin Email', key: 'email', type: 'email', placeholder: 'admin@uwo.ca' },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key}>
                   <label className="block text-[10px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: '#60a5fa' }}>

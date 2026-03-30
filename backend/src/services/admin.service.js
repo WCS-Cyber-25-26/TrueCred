@@ -7,7 +7,7 @@ import { registerUniversityOnChain, fundWallet } from '../utils/blockchain.js';
 const INVITE_EXPIRY_HOURS = 24;
 
 const adminService = {
-        async sendInvite({ name, domain, email, createdBy }) {
+    async sendInvite({ name, domain, email, createdBy }) {
         if (!email.endsWith(`@${domain}`)) {
             throw new Error('Email must match university domain');
         }
@@ -65,11 +65,12 @@ const adminService = {
 
         //sendInviteEmail(email, rawToken)
         console.log(
-            `Invite link: https://yourapp.com/universities/activate?token=${rawToken}`
+            `Invite link: http://localhost:3000/universities/activate?token=${rawToken}`
         );
 
         return {
             message: 'University invitation sent',
+            token: rawToken,
         };
     },
     async revokeUniversity(universityId, revokedBy) {
@@ -92,28 +93,28 @@ const adminService = {
     async getAllUniversities() {
         return await prisma.university.findMany({
             select: {
-              id: true,
-              name: true,
-              domain: true,
-              domainVerified: true,
-              chainEnabled: true,
-              createdAt: true,
-              userId: true,
-              _count: {
-                select: { credentials: true },
-              },
-              revocation: {
-                select: {
-                  revokedAt: true,
-                  reason: true,
-                  revokedBy: true,
+                id: true,
+                name: true,
+                domain: true,
+                domainVerified: true,
+                chainEnabled: true,
+                createdAt: true,
+                userId: true,
+                _count: {
+                    select: { credentials: true },
                 },
-              },
+                revocation: {
+                    select: {
+                        revokedAt: true,
+                        reason: true,
+                        revokedBy: true,
+                    },
+                },
             },
             orderBy: {
-              createdAt: 'desc',
+                createdAt: 'desc',
             },
-          });
+        });
     },
     async getUniversityById(universityId) {
         const university = await prisma.university.findUnique({
